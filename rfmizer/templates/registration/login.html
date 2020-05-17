@@ -1,0 +1,16 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Залогинтесь{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+  <p>Связка логин\пароль не найдена. Пожалуйста попробуйте еще раз.</p>
+{% endif %}
+<form action="{% url "login" %}" method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ personal.html }}">
+    <p><input type="submit" value="Войти"></p>
+</form>
+<p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+{% endblock %}

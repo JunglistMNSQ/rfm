@@ -1,0 +1,67 @@
+{% extends "generic.html" %}
+
+{% load static %}
+
+{% block h1 %}Настройки и содержание таблицы {{ tab.name_table }}{% endblock %}
+
+{% block content %}
+    <p>
+    <span class="image right"><img src="{% static "images/RFM-cube.png" %}" alt="" /></span>
+    В таблице ниже нужно ввести значения для разделения клиентов по сегментам. Матрица 3х3х3.
+    Картинка для наглядности. <br>
+    Ключевые оси матрицы: R и F. В данной модели F и M могут только увеличиваться.
+    Поэтому триггер к рассылке - переход по оси R на сегмент ниже. 3 => 2 => 1.
+    <br>
+    С понедельника по пятницу в 10:00  по Минску приложение пересчитывает RFM для всех клиенто в активных таблицах.
+    </p>
+    <hr>
+    {% if msg %}<h2>{{ msg }}</h2>{% endif %}
+    <form method="post">
+
+        <table class="alt">
+            <thead>
+                <tr>
+                    <td>Delimiter</td>
+                    <td align="center" colspan="2">Recency</td>
+                    <td align="center">Frequency</td>
+                    <td align="center">Monetary</td>
+                </tr>
+            </thead>
+            <tr>
+                <td>3 | 2</td>
+                <td>{{ form.recency_raw_2 }}</td>
+                <td>{{ form.choice_rec_2 }}</td>
+                <td>{{ form.frequency_2 }}</td>
+                <td>{{ form.monetary_2 }}</td>
+            </tr>
+            <tr>
+                <td>2 | 1</td>
+                <td>{{ form.recency_raw_1 }}</td>
+                <td>{{ form.choice_rec_1 }}</td>
+                <td>{{ form.frequency_1 }}</td>
+                <td>{{ form.monetary_1 }}</td>
+            </tr>
+        </table>
+
+        {% for radio in form.on_off %}
+        {{ radio.tag }}
+        <label for="on_off_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
+
+        {% endfor %}
+
+
+        <input type="submit" style="float: right" class="button" value="Обновить настройки и посчитать RFM">
+
+
+        {% if form.errors %}{{ form.errors.as_ul }}{% endif %}
+        {% csrf_token %}
+    </form>
+    <hr>
+    <p>
+        <a href="{% url "clients_list" tab.slug %}" class="button">Посмотреть список клиентов</a>
+        <a href="{% url "rfmize" tab.slug %}" class="button">Пересчитать RFM клиентов</a>
+        <hr>
+        <a href="{% url "rules" tab.slug %}" class="button">Управление рассылкой</a>
+    </p>
+
+{% endblock %}

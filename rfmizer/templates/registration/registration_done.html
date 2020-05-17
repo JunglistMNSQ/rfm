@@ -1,0 +1,6 @@
+{% extends "generic.html" %}
+{% block title %}created {% endblock %}
+{% block content %}
+<p>Здравствуйте {{ new_user.username }} </p>
+Теперь вы можете <a href="{% url "login" %}">войти</a>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Вы успешно вышли{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+{% endif %}
+<p>Что бы войти перейдите по <a href="{% url "login" %}">ссылке</a></p>
+
+{% endblock %}

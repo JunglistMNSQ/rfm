@@ -1,0 +1,64 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Список клиентов из таблицы {{ tab }}{% endblock %}
+
+{% block content %}
+{% if clients %}
+    <table id="sort" class="sort">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Телефон</th>
+            <th>Последняя сделка</th>
+            <th>Сумма платежей</th>
+            <th>RFM Сегмент</th>
+            <th>Последняя рассылка</th>
+            <th>Клиент активен</th>
+            <th>Управление</th>
+        </tr>
+        </thead>
+
+    {% for client in clients %}
+        <tr>
+            <td>{{ client }}</td>
+            <td>{{ client.phone }}</td>
+            <td>{{ client.last_deal }}</td>
+            <td>{{ client.pays }}</td>
+            <td>{{ client.rfm_category }}</td>
+            <td>{{ client.last_sent }}</td>
+            <td>{{ client.get_active_client_display }}</td>
+            <td><a href="{{ client.get_absolute_url }}" class="button primary fit">Редактировать</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+    <div align="center">
+
+            {% if clients.has_previous %}
+                <span>
+                    <a href="?page={{ clients.previous_page_number }}" class="button primary small">Назад</a>
+                </span>
+            {% else %}
+                <span class="button primary small disabled">Назад</span>
+            {% endif %}
+
+
+        <span>Страница {{ clients.number }} из {{ clients.paginator.num_pages }}.</span>
+
+
+            {% if clients.has_next %}
+                <span>
+                    <a href="?page={{ clients.next_page_number }}" class="button primary small">Вперед</a>
+                </span>
+            {% else %}
+                <span class="button primary small disabled">Вперед</span>
+            {% endif %}
+    </div>
+    <script>Tablesort(document.getElementById('sort'));</script>
+{% else %}
+    <p>В таблице нет ни одного клиента</p>
+{% endif %}
+    <hr>
+    <a href="{% url "manage_tab" tab.slug %}" class="button">Вернутся к таблице</a>
+{% endblock %}
+
+

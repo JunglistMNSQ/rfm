@@ -1,0 +1,38 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Загрузка файла и создание / обновление таблицы{% endblock %}
+
+{% block content %}
+    <p> Формат файла CSV. Обязательные колонки - | Дата сделки | Имя | Телефон | Вид услуги | Сумма | </p>
+        <table class="alt" width="100%">
+            <tr>
+                <td>Дата сделки</td>
+                <td>Имя</td>
+                <td>Телефон</td>
+                <td>Вид услуги</td>
+                <td>Сумма</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Формат DD.MM.YYYY</td>
+                <td>Имя</td>
+                <td>8 0XX => +375ХХ</td>
+                <td>Вид услуги</td>
+                <td>Сумма</td>
+                <td></td>
+            </tr>
+        </table>
+        <p><b>Внимание!</b> При обновлении существующей таблицы важно что-бы
+        иформация была только за период, от последней загрузки базы, до актуальной даты.
+        Система не проверяет записи на дублирование,
+        поэтому проверяйте самостоятельно данные в таблице.</p>
+
+        <form action="." method="post" enctype="multipart/form-data">
+            <div class="row gtr-uniform">
+                {{ form.as_p }}
+                {% csrf_token %}
+            </div>
+            <input class="button primary icon solid fa-upload" type="submit">
+        </form>
+
+{% endblock %}

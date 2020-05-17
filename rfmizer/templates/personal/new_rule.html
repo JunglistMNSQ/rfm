@@ -1,0 +1,43 @@
+{% extends "generic.html" %}
+
+{% load static %}
+
+{% block h1 %}{% if msg %}{{ msg }}{% else %}Создание нового правила{% endif %}{% endblock %}
+
+{% block content %}
+    <p>
+    <span class="image right"><img src="{% static "images/RFM-cube.png" %}" alt="" /></span>
+    Ключевые оси матрицы: R и F. В данной модели F и M могут только увеличиваться.
+    Поэтому триггер к рассылке - переход по оси R на сегмент ниже. 3 => 2 => 1.
+    <br>
+    Правило будет запускать рассылку с понедельника по пятницу в 10:15 по Минску.
+    </p>
+    <a href="{% url "rules" slug %}" class="button">Вернуться обратно к списку</a>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}{{ form.errors.as_ul }}{% endif %}
+        <div class="row gtr-uniform">
+
+            <div class="col-12">{{ form.name.label }} {{ form.name }}</div>
+
+             {% for radio in form.on_off_rule %}
+                <div class="col-6 col-12-small" style="bottom: auto">
+                {{ radio.tag }}
+                <label for="on_off_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
+                </div>
+            {% endfor %}
+
+            <div class="col-12">{{ form.from_to.label }} </div>
+            {% for choice in form.from_to %}
+            <div class="col-4 col-12-small">{{ choice.tag }}<label for="id_from_to_{{ forloop.counter0 }}">{{ choice.choice_label }}</label></div>
+            {% endfor %}
+
+            <div class="col-12">{{ form.message.label }}{{ form.message }}</div>
+            <div class="col-4 col-12-small"><input type="submit" class="button" value="Сохранить правило"></div>
+        </div>
+    </form>
+    <hr>
+    <a href="{% url "rules" slug %}" class="button">Вернуться обратно к списку</a>
+
+{% endblock %}

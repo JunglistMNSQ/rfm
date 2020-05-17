@@ -1,0 +1,7 @@
+psycopg2
+django-uuslug
+django-phonenumber-field[phonenumbers]
+django-crontab
+requests
+django-multiselectfield
+django_extensions

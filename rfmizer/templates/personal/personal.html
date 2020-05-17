@@ -1,0 +1,27 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Здравствуйте {{user.get_username}}{% endblock %}
+
+{% block content %}
+<h2>{{user.profile.notification_msg}}</h2>
+    <p>Введите логин / пароль RockerSMS.by</p>
+    <form method="post">
+        <table class="alt">
+            <tr>
+                <td>Логин</td>
+                <td>Пароль</td>
+                <td>Осталось кредитов</td>
+            </tr>
+            <tr>
+                <td>{{ form.sms_login }}</td>
+                <td>{{ form.sms_pass }}</td>
+                <td>{{ user.profile.balance }}</td>
+            </tr>
+        </table>
+        {% csrf_token %}
+        <input type="submit" style="float: right" class="button" value="Сохранить">
+    </form>
+    <hr>
+
+
+{% endblock %}

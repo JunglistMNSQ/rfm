@@ -1,0 +1,35 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Карточка клиента {{ client.name }} # {{ client.id }} {% if msg %}{{ msg }}{% endif %}{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <table id="table-id">
+
+            <tr>
+                <td>Имя</td>
+                <td>Телефон</td>
+                <td>Последняя сделка</td>
+                <td>Сумма платежей</td>
+                <td>RFM Сегмент</td>
+                <td>Последняя рассылка</td>
+                <td>Клиент активен</td>
+                <td>Управление</td>
+            </tr>
+            <tr>
+                <td>{{ client.name }}</td>
+                <td>{{ form.phone }}</td>
+                <td>{{ client.last_deal }}</td>
+                <td>{{ client.pays }}</td>
+                <td>{{ client.rfm_category }}</td>
+                <td>{{ client.last_sent }}</td>
+                <td>{{ form.active_client }}</td>
+                <td><input type="submit" value="Сохранить" class="button primary fit"></td>
+            </tr>
+        </table>
+        {% if form.errors %}{{ form.errors }}{% endif %}
+        {% csrf_token %}
+    </form>
+<p><a href="{% url "clients_list" slug_tab %}" class="button primary fit">Вернуться к списку клиентов</a></p>
+
+{% endblock %}

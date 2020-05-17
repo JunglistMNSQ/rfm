@@ -1,0 +1,26 @@
+{% extends "generic.html" %}
+
+{% block h1 %}{% if msg %}{{ msg }}{% else %}Правила рассылки таблицы {{ tab }}{% endif %}{% endblock %}
+
+{% block content %}
+    {% if rules %}
+        <p>Рассылка выполнена для правил</p>
+        <table class="alt">
+            <thead>
+            <td>Название</td>
+            <td>Триггеры</td>
+            <td>Подробнее</td>
+            </thead>
+            {% for rule in rules %}
+                <tr>
+                    <td>{{ rule }}</td>
+                    <td>{{ rule.get_from_to_display }}</td>
+                    <td><a href="{{ rule.get_absolute_url }}" class="button primary fit">Детали</a></td
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    <a href="{% url "rules" tab.slug %}" class="button">Вернутся к списку</a>
+
+
+{% endblock %}

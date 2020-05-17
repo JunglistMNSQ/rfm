@@ -1,0 +1,35 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Правила рассылки таблицы {{ tab }}{% endblock %}
+
+{% block content %}
+    <a href="{% url "run_rules" tab.slug %}" class="button">Запустить рассылку по всем активным правилам</a>
+    <br>
+    <hr>
+    <a href="{% url "new_rule" tab.slug %}" class="button">Создать правило</a>
+    <a href="{% url "manage_tab" tab.slug %}" class="button">Вернутся к таблице</a>
+    <br>
+    <hr>
+    {% if rules %}
+        <table class="alt">
+            <thead>
+            <td>Название</td>
+            <td>Триггеры</td>
+            <td>Статус</td>
+            <td>Подробнее</td>
+            </thead>
+            {% for rule in rules %}
+                <tr>
+                    <td>{{ rule }}</td>
+                    <td>{{ rule.get_from_to_display }}</td>
+                    <td>{{ rule.get_on_off_rule_display }}</td>
+                    <td><a href="{{ rule.get_absolute_url }}" class="button primary fit">Детали</a></td
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Вами не создано не одного правила.</p>
+    {% endif %}
+
+
+{% endblock %}

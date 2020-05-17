@@ -1,0 +1,13 @@
+{% extends "generic.html" %}
+{% block h1 %}Вы действительно хотите удалить {{ tab }}{% endblock %}
+    {% block content %}
+        {% if msg %}
+            <h2>{{ msg }}</h2>>
+            <a href="{% url "my_tables" %}" class="button primary"> Вернуться к таблицам</a>
+        {% else %}
+            <form action="." method="post">
+                {% csrf_token %}
+                <button class="button primary fit">Хочу</button></form>
+            <a href="{% url "my_tables" %}" class="button primary fit">Не хочу</a>
+        {% endif %}
+    {% endblock %}
