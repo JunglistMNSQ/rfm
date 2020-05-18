@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render
-from django.views.generic import CreateView, TemplateView, FormView
+from django.views.generic import *
 from .forms import *
 from django.contrib.auth import authenticate, login
 from django.core.files.uploadedfile import TemporaryUploadedFile as Tf
@@ -37,36 +37,60 @@ class Upload(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        table = None
         owner = self.request.user
         cd = form.cleaned_data
-
-        file = Tf.temporary_file_path(cd['file'])
-        parser = HandlerRawData(CsvFileHandler(file))
-        lines = parser.take_lines(3)
-        parser.take_lines()
+        new_file = UserFiles(file=cd['file'], owner=owner)
+        new_file.save()
+        self.request.session['file'] = new_file.id
         if cd['name']:
             print(cd['name'])
-            table = form.save(commit=False)
-            table.owner = owner
-            table.save()
-            parser.tab = table
+            tab = form.save(commit=False)
+            tab.owner = owner
+            tab.save()
+            self.request.session['tab'] = tab.id
+            self.request.session['tab_is_new'] = True
             return super().form_valid(form)
-
-        title = f'Файл загружен и обработан.'
-        # if lines[1] and cd['name']:
-        #     table.delete()
-        #     title = lines[0]
-        # elif lines[1] and cd['choice_exist_tab']:
-        #     title = lines[0]
-        # else:
-        #     pass
-        parser.tab = cd['choice_exist_tab']
-        return redirect('/parse/', parser)
+        else:
+            tab = cd['choice_exist_tab']
+            self.request.session['tab'] = tab.id
+            self.request.session['tab_is_new'] = False
+            return redirect('/parse/')
 
 
-class Parse(LoginRequiredMixin, TemplateView):
+class Parse(LoginRequiredMixin, FormView):
     template_name = 'personal/parse.html'
+    form_class = ParserForm
+
+    def get_form_kwargs(self):
+        kwargs = super(Parse, self).get_form_kwargs()
+        file = UserFiles.object.get(pk=self.request.session['file'])
+        file = CsvFileHandler(file.file.path)
+        parser = HandlerRawData(file)
+        kwargs.update({'parser': parser})
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(Parse, self).get_context_data()
+        file = UserFiles.object.get(pk=self.request.session['file'])
+        file = CsvFileHandler(file.file.path)
+        parser = HandlerRawData(file)
+
+        context['lines'] = parser.take_lines(3)
+
+        return context
+
+    def form_valid(self):
+        owner = self.request.user
+        tab = self.request.session['tab']
+        tab_is_new = self.request.session['tab_is_new']
+        file = UserFiles.object.get(pk=self.request.session['file'])
+        file = CsvFileHandler(file.file.path)
+        parser = HandlerRawData(file)
+        parser.parse()
+        return super(Parse, self).form_valid()
+
+
+
 
 
 class Log(LoginRequiredMixin, TemplateView):

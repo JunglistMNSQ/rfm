@@ -1,7 +1,50 @@
 {% extends "generic.html" %}
 
-{% block h1 %}Журнал отправки СМС{% endblock %}
+{% block h1 %}Пример содержимого загружаемого вами файла{% endblock %}
 
 {% block content %}
-<p>{{ parser.tab }}</p>
+
+    {% if ex %}
+
+        <p> Формат файла CSV. Обязательные колонки - | Дата сделки | Имя | Телефон | Вид услуги | Сумма | </p>
+        <table class="alt" width="100%">
+            <tr>
+                <td>Дата сделки</td>
+                <td>Имя</td>
+                <td>Телефон</td>
+                <td>Вид услуги</td>
+                <td>Сумма</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Формат DD.MM.YYYY</td>
+                <td>Имя</td>
+                <td>8 0XX => +375ХХ</td>
+                <td>Вид услуги</td>
+                <td>Сумма</td>
+                <td></td>
+            </tr>
+        </table>
+        <a href="{% url "upload" %}" class="button">Попробовать еще раз</a>
+
+    {% else %}
+        <table class="alt" width="100%">
+            <tr>
+                <td>Дата сделки</td>
+                <td>Имя</td>
+                <td>Телефон</td>
+                <td>Вид услуги</td>
+                <td>Сумма</td>
+                <td></td>
+            </tr>
+            {% for line in lines %}
+            <tr>
+            {% for cell in line %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        <a href="{% url "upload" %}" class="button">Загрузить еще файл</a>
+    {% endif %}
 {% endblock %}

@@ -40,12 +40,12 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
-class CsvFileHandler:
+class CsvFileHandler(csv.Sniffer):
 
     def __init__(self, path):
+        super(CsvFileHandler, self).__init__()
         self.opened = open(path, 'r')
-        sn = csv.Sniffer()
-        self.dialect = sn.sniff(self.opened.readline())
+        self.dialect = self.sniff(self.opened.readline())
         self.opened.seek(0)
         self.file = csv.reader(self.opened, self.dialect)
         self.data = []
@@ -62,6 +62,7 @@ class HandlerRawData:
         self.bound_obj = obj
         self.raw_data = []
         self.tab = None
+        self.owner = None
 
     def take_line(self):
         line = self.bound_obj.get_line()
@@ -76,6 +77,23 @@ class HandlerRawData:
                 break
             if len(self.raw_data) == n:
                 break
+        return self.raw_data
+
+
+class UserFiles(models.Model):
+    name = models.CharField(max_length=100)
+    file = models.FileField()
+    created_at = models.DateTimeField(auto_now=timezone.now())
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,)
+
+    object = models.Manager()
+
+    def __str__(self):
+        return self.name
+
+    def user_directory_path(instance, filename):
+        return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 
 class ManageTable(models.Model):

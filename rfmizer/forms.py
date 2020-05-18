@@ -6,11 +6,6 @@ from . import models
 from .validators import *
 
 
-# class LoginForm(forms.Form):
-#     username = forms.CharField(label='Имя пользователя')
-#     password = forms.CharField(widget=forms.PasswordInput)
-#
-#
 class UserRegistrationForm(ModelForm):
     password = forms.CharField(label='Введите пароль',
                                widget=forms.PasswordInput)
@@ -27,14 +22,6 @@ class UserRegistrationForm(ModelForm):
             raise forms.ValidationError('Пароли не совпадают')
         return cd['password2']
 
-#
-# class ProfileForm(ModelForm):
-#
-#     class Meta:
-#         model = models.Profile
-#         fields = ['sms_login', 'sms_pass']
-#         widgets = {'sms_pass': forms.PasswordInput}
-
 
 class CreateOrUpdateTable(ModelForm):
 
@@ -43,9 +30,10 @@ class CreateOrUpdateTable(ModelForm):
         required=False,
         label='или обновите существующую таблицу'
     )
+
     file = forms.FileField(
         validators=[validate_file_extension],
-        label='Файл'
+        label='Файл',
     )
 
     class Meta:
@@ -75,6 +63,26 @@ class CreateOrUpdateTable(ModelForm):
                 'Введите название новой таблицы, '
                 'либо выберете существующую '
                 'для обновления данных.')
+
+
+class ParserForm(forms.Form):
+
+    DATA_TYPE = [(0, 'Дата сделки'),
+                 (1, 'Имя'),
+                 (2, 'Сумма сделки'),
+                 (3, 'Номер телефона'),
+                 (4, 'Услуга / Товар'),]
+
+    parser = None
+    col0 = forms.ChoiceField(choices=DATA_TYPE)
+    col1 = forms.ChoiceField(choices=DATA_TYPE)
+    col2 = forms.ChoiceField(choices=DATA_TYPE)
+    col3 = forms.ChoiceField(choices=DATA_TYPE)
+    col4 = forms.ChoiceField(choices=DATA_TYPE)
+
+    def __init__(self, *args, **kwargs):
+        self.parser = kwargs.pop('parser')
+        super(ParserForm, self).__init__(*args, **kwargs)
 
 #
 # class RfmOptions(forms.ModelForm):

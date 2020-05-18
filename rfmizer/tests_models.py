@@ -4,9 +4,18 @@ from .models import *
 # Create your tests here.
 
 
+class SetUpMixin(TestCase):
+    def setUp(self):
+        super(SetUpMixin, self).setUp()
+        self.file = '/Users/vladimir/Documents/testdbsheet.csv'
+        self.user = User()
+        self.user.save()
+
+
 class TestProfile(TestCase):
 
     def setUp(self):
+        super(TestProfile, self).setUp()
         self.new_user = User(username='u_test')
         self.new_user.save()
 
@@ -19,23 +28,25 @@ class TestProfile(TestCase):
                          'Alert!')
 
 
-class TestCsvFileHandler(TestCase):
+class TestCsvFileHandler(SetUpMixin, TestCase):
 
     def setUp(self):
-        self.file = CsvFileHandler('/Users/vladimir/Documents/testdbsheet.csv')
+        super(TestCsvFileHandler, self).setUp()
+        self.obj = CsvFileHandler(self.file)
 
     def test_init(self):
-        self.assertTrue(self.file.file)
+        self.assertTrue(self.obj.file)
 
     def test_get_line(self):
-        line = self.file.get_line()
+        line = self.obj.get_line()
         self.assertEqual(type(line), list)
 
 
-class TestHandlerRawData(TestCase):
+class TestHandlerRawData(SetUpMixin, TestCase):
 
     def setUp(self):
-        self.obj = CsvFileHandler('/Users/vladimir/Documents/testdbsheet.csv')
+        super(TestHandlerRawData, self).setUp()
+        self.obj = CsvFileHandler(self.file)
         self.parser = HandlerRawData(self.obj)
 
     def test_init_with_object(self):
@@ -56,12 +67,23 @@ class TestHandlerRawData(TestCase):
                          self.obj.file.line_num)
 
 
-class TestManageTable(TestCase):
+class TestUserFiles(SetUpMixin, TestCase):
 
-    def setUp(self):
-        self.user = User()
-        self.user.save()
+    def test_save_file(self):
+        new_file = UserFiles()
+        new_file.file = self.file
+        new_file.owner = self.user
+        new_file.save()
+        self.assertTrue(UserFiles.object.get())
 
+
+
+    pass
+
+
+
+
+class TestManageTable(SetUpMixin, TestCase):
     def test_save_with_work_slug(self):
         obj1 = ManageTable(name='Test1', owner=self.user)
         obj2 = ManageTable(name='Test1', owner=self.user)

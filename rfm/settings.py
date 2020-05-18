@@ -122,7 +122,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/log/'
 
+MEDIA_URL = '/user_files/'
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'user_files')
 
-FILE_UPLOAD_HANDLERS = [
-    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
-]

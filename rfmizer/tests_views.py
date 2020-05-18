@@ -37,7 +37,7 @@ class TestRegister(TestCase):
         self.assertEqual(user.get_username(), 'TestUser')
 
 
-class TestUpload(UserReadyMixin, TestCase):
+class TestUploadToParse(UserReadyMixin, TestCase):
 
     def test_get(self):
         response = self.client.get('/upload/', )
@@ -45,31 +45,43 @@ class TestUpload(UserReadyMixin, TestCase):
         self.assertEqual(ManageTable.objects.filter(owner=self.user)[0],
                          self.tab_exist)
 
-    def test_post_create(self):
-        with open(self.file) as f:
-            response = self.client.post('/upload/',
-                                        {'name': 'test1',
-                                         'file': f},
-                                        follow=True)
-            self.assertEqual(response.redirect_chain, [('/parse/', 302)])
-            self.assertTrue(ManageTable.objects.get(name='test1'))
-
-    def test_post_update(self):
+    def test_create(self):
         with open(self.file) as f:
             response = self.client.post(
                 '/upload/',
-                {'choice_exist_tab': self.tab_exist,
+                {'name': 'test1',
                  'file': f},
                 follow=True
             )
-            self.assertEqual(response.redirect_chain, [('/parse/', 302)])
+            session = self.client.session
+            tab = ManageTable.objects.get(pk=session['tab'])
+            # self.assertTrue(response.context['lines'])
+            self.assertEqual(tab.name, 'test1')
+            self.assertTrue(session['tab_is_new'])
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.redirect_chain,
+                             [('/parse/', 302)])
 
+    def test_update(self):
+        with open(self.file) as f:
+            response = self.client.post(
+                '/upload/',
+                {'choice_exist_tab': self.tab_exist.id,
+                 'file': f},
+                follow=True
+            )
+            session = self.client.session
+            tab = ManageTable.objects.get(pk=session['tab'])
+            self.assertTrue(response.context['lines'])
+            self.assertEqual(session['tab_is_new'], False)
+            self.assertEqual(tab.name, self.tab_exist.name)
+            self.assertEqual(response.redirect_chain,
+                             [('/parse/', 302)])
 
-class TestParse(UserReadyMixin, TestCase):
-
-    def test_parse(self):
-        response = self.client.get('/parse/')
-        self.assertEqual(response.status_code, 200)
+    # def test_parse_context(self):
+    #     response = self.client.post('/parse/', follow=True)
+    #     tab = ManageTable.objects.get(pk=self.client.session['tab'])
+    #     self.assertEqual(response.redirect_chain, (tab.slug, 302))
 
 
 class TestLog(UserReadyMixin, TestCase):
