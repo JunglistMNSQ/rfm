@@ -58,6 +58,12 @@ class CsvFileHandler(csv.Sniffer):
 
 class HandlerRawData:
 
+    col0 = None
+    col1 = None
+    col2 = None
+    col3 = None
+    col4 = None
+
     def __init__(self, obj):
         self.bound_obj = obj
         self.raw_data = []
@@ -79,6 +85,31 @@ class HandlerRawData:
                 break
         return self.raw_data
 
+    def parse(self):
+        self.take_lines()
+        self.col_order()
+        for line in self.raw_data:
+            client = Person()
+            # client.name = line[]
+            client.owner = self.owner
+            client.table = self.tab
+            client.save()
+
+        return True
+
+    def col_order(self):
+        col = 0
+        order = []
+        while True:
+            try:
+                attr = hasattr(self, 'col' + str(col))
+                value = getattr(self, attr)
+                order.append((attr, value))
+                col += 1
+            except BaseException:
+                break
+        return order
+
 
 class UserFiles(models.Model):
     name = models.CharField(max_length=100)
@@ -89,11 +120,8 @@ class UserFiles(models.Model):
 
     object = models.Manager()
 
-    def __str__(self):
-        return self.name
-
-    def user_directory_path(instance, filename):
-        return 'user_{0}/{1}'.format(instance.user.id, filename)
+    # def user_directory_path(instance, filename):
+    #     return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 
 class ManageTable(models.Model):
@@ -169,3 +197,67 @@ class ManageTable(models.Model):
         return 'RFM успешно пересчитан'
 
 
+class Person(models.Model):
+    ACTIVE_CLIENT = ((True, 'Да'),
+                     (False, 'Нет'))
+
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,)
+    slug = models.CharField(max_length=100)
+    name = models.TextField()
+    phone = PhoneNumberField()
+    last_deal = models.DateField(null=True)
+    pays = models.IntegerField(null=True)
+    deal_count = models.IntegerField(null=True)
+    last_deal_good = models.TextField(null=True)
+    rfm_category = models.TextField(default='000')
+    active_client = models.BooleanField(choices=ACTIVE_CLIENT,
+                                        default=True,)
+    table = models.ForeignKey(ManageTable,
+                              on_delete=models.CASCADE,)
+    last_sent = models.DateField(null=True)
+    rfm_move = models.TextField(default='000000')
+    rfm_flag = models.BooleanField(default=False)
+
+    objects = models.Manager()
+
+    def rfm_category_update(self, rfm):
+        if self.rfm_category != rfm:
+            self.rfm_category = rfm
+            self.rfm_flag = True
+            self.save()
+            self.rfm_move_update()
+
+    def rfm_move_update(self):
+        if self.rfm_category != self.rfm_move[3:] and self.rfm_flag:
+            self.rfm_move = self.rfm_move[3:] + self.rfm_category
+            self.save()
+
+    def rfm_flag_update(self, flag):
+        self.rfm_flag = flag
+        self.save()
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.phone
+
+    def save(self, *args, **kwargs):
+        self.slug = uuslug(self.name, instance=self)
+        super(Person, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        table = self.table
+        return reverse('client_card', args=[table.slug,
+                                            self.slug])
+
+
+class ListDeals(models.Model):
+    person = models.ForeignKey(Person,
+                               on_delete=models.CASCADE)
+    date = models.DateField()
+    pay = models.PositiveIntegerField()
+    good = models.TextField()
+
+    deals = models.Manager()

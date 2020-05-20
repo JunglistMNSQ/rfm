@@ -10,6 +10,8 @@ class SetUpMixin(TestCase):
         self.file = '/Users/vladimir/Documents/testdbsheet.csv'
         self.user = User()
         self.user.save()
+        self.new_tab = ManageTable(name='test', owner=self.user)
+        self.new_tab.save()
 
 
 class TestProfile(TestCase):
@@ -18,6 +20,7 @@ class TestProfile(TestCase):
         super(TestProfile, self).setUp()
         self.new_user = User(username='u_test')
         self.new_user.save()
+        self.new_tab = ManageTable(name='test', owner=self.new_user)
 
     def test_create_user_profile(self):
         self.assertEqual(self.new_user.profile.user, self.new_user)
@@ -65,6 +68,12 @@ class TestHandlerRawData(SetUpMixin, TestCase):
         self.parser.take_lines()
         self.assertEqual(len(self.parser.raw_data),
                          self.obj.file.line_num)
+
+    def test_parse(self):
+        self.parser.owner = self.user
+        self.parser.tab = self.new_tab
+        result = self.parser.parse()
+        self.assertEqual(result, True)
 
 
 class TestUserFiles(SetUpMixin, TestCase):

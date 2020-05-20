@@ -79,15 +79,15 @@ class Parse(LoginRequiredMixin, FormView):
 
         return context
 
-    def form_valid(self):
-        owner = self.request.user
-        tab = self.request.session['tab']
+    def form_valid(self, form):
         tab_is_new = self.request.session['tab_is_new']
         file = UserFiles.object.get(pk=self.request.session['file'])
         file = CsvFileHandler(file.file.path)
         parser = HandlerRawData(file)
+        parser.owner = self.request.user
+        parser.tab = self.request.session['tab']
         parser.parse()
-        return super(Parse, self).form_valid()
+        return super(Parse, self).form_valid(form)
 
 
 

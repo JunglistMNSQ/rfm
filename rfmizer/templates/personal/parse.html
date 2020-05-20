@@ -28,23 +28,27 @@
         <a href="{% url "upload" %}" class="button">Попробовать еще раз</a>
 
     {% else %}
-        <table class="alt" width="100%">
-            <tr>
-                <td>Дата сделки</td>
-                <td>Имя</td>
-                <td>Телефон</td>
-                <td>Вид услуги</td>
-                <td>Сумма</td>
-                <td></td>
-            </tr>
-            {% for line in lines %}
-            <tr>
-            {% for cell in line %}
-                <td>{{ cell }}</td>
-            {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
+        <form method="post">
+            {% csrf_token %}
+            <table class="alt" width="100%">
+                <tr>
+                    <td>{{ form.col0 }}</td>
+                    <td>{{ form.col1 }}</td>
+                    <td>{{ form.col2 }}</td>
+                    <td>{{ form.col3 }}</td>
+                    <td>{{ form.col4 }}</td>
+                    <td></td>
+                </tr>
+                {% for line in lines %}
+                <tr>
+                {% for cell in line %}
+                    <td>{{ cell }}</td>
+                {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+            <input type="submit" class="button" value="Распарсить файл"></div>
+        </form>
         <a href="{% url "upload" %}" class="button">Загрузить еще файл</a>
     {% endif %}
 {% endblock %}

@@ -67,22 +67,40 @@ class CreateOrUpdateTable(ModelForm):
 
 class ParserForm(forms.Form):
 
-    DATA_TYPE = [(0, 'Дата сделки'),
-                 (1, 'Имя'),
-                 (2, 'Сумма сделки'),
-                 (3, 'Номер телефона'),
-                 (4, 'Услуга / Товар'),]
+    DATA_TYPE = [('name', 'Имя'),
+                 ('phone', 'Номер телефона'),
+                 ('date', 'Дата сделки'),
+                 ('pay', 'Сумма сделки'),
+                 ('good', 'Услуга / Товар')]
 
     parser = None
-    col0 = forms.ChoiceField(choices=DATA_TYPE)
-    col1 = forms.ChoiceField(choices=DATA_TYPE)
-    col2 = forms.ChoiceField(choices=DATA_TYPE)
-    col3 = forms.ChoiceField(choices=DATA_TYPE)
-    col4 = forms.ChoiceField(choices=DATA_TYPE)
+
+    col0 = forms.ChoiceField(choices=DATA_TYPE, initial='name')
+    col1 = forms.ChoiceField(choices=DATA_TYPE, initial='phone')
+    col2 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
+    col3 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
+    col4 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
 
     def __init__(self, *args, **kwargs):
         self.parser = kwargs.pop('parser')
         super(ParserForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        cd = self.cleaned_data
+        if cd['col0'] != cd['col1'] != cd['col2'] != cd['col3'] != cd['col4']:
+            col = 0
+            while True:
+                try:
+                    value = cd['col' + str(col)]
+                    setattr(self.parser, 'col' + str(col), value)
+                    col += 1
+                except KeyError:
+                    break
+        else:
+            raise ValidationError('Значения в шапке таблице не '
+                                  'должны повторяться')
+
 
 #
 # class RfmOptions(forms.ModelForm):
