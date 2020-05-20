@@ -67,6 +67,7 @@ class HandlerRawData:
     def __init__(self, obj):
         self.bound_obj = obj
         self.raw_data = []
+        self.not_condition_data = []
         self.tab = None
         self.owner = None
 
@@ -88,13 +89,19 @@ class HandlerRawData:
     def parse(self):
         self.take_lines()
         self.col_order()
+        prep_line = {}
         for line in self.raw_data:
-            client = Person()
-            # client.name = line[]
-            client.owner = self.owner
-            client.table = self.tab
-            client.save()
-
+            prep_line = {}
+            prep_line[self.col0] = line[0]
+            prep_line[self.col1] = line[1]
+            prep_line[self.col2] = line[2]
+            prep_line[self.col3] = line[3]
+            prep_line[self.col4] = line[4]
+            prep_line['owner'] = self.owner
+            prep_line['table'] = self.tab
+            res = Person.get_data_line(prep_line)
+            if not res:
+                self.not_condition_data.append(line)
         return True
 
     def col_order(self):

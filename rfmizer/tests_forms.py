@@ -1,25 +1,17 @@
-from django.contrib.auth.models import User
-from django.test import TestCase, Client
+from .fixtures import FixturesMixin
+from django.test import TestCase
 from .forms import *
 from .models import *
 
 
-class TestCreateOrUpdateForm(TestCase):
-
-    def setUp(self):
-        self.user = User(username='TestUser')
-        self.user.save()
-        self.table = ManageTable(name='test',
-                                 owner=self.user)
-        self.table.save()
-
+class TestCreateOrUpdateForm(FixturesMixin, TestCase):
     def test_init_form(self):
         form = CreateOrUpdateTable(owner=self.user)
         self.assertTrue(form)
 
     def test_upload_init(self):
         form = CreateOrUpdateTable(owner=self.user)
-        form.file = '/Users/vladimir/Documents/testdbsheet.csv'
+        form.file = self.file
         file = UserFiles(file=form.file, owner=self.user)
         file.save()
         self.assertTrue(file.file)
@@ -27,7 +19,7 @@ class TestCreateOrUpdateForm(TestCase):
 
     def test_upload_post_create(self):
         form = CreateOrUpdateTable(owner=self.user)
-        form.file = '/Users/vladimir/Documents/testdbsheet.csv'
+        form.file = self.file
         form.name = 'test1'
         tab = form.save(commit=False)
         tab.owner = self.user
@@ -38,14 +30,11 @@ class TestCreateOrUpdateForm(TestCase):
         self.assertTrue(tab.on_off)
 
 
-class TestParserForm(TestCase):
+class TestParserForm(FixturesMixin, TestCase):
     def setUp(self):
-        self.user = User()
-        self.user.save()
-        self.tab = ManageTable(name='test', owner=self.user)
-        self.tab.save()
-        file = CsvFileHandler('/Users/vladimir/Documents/testdbsheet.csv')
-        self.parser = HandlerRawData(file)
+        super(TestParserForm, self).setUp()
+        self.reader = CsvFileHandler(self.file)
+        self.parser = HandlerRawData(self.reader)
         self.parser.owner = self.user
 
     def test_parser_form_init(self):
@@ -53,20 +42,12 @@ class TestParserForm(TestCase):
         self.assertEqual(form.parser, self.parser)
 
     def test_parser_form_clean(self):
-        form_data = {'col0': 'name',
-                     'col1': 'phone',
-                     'col2': 'date',
-                     'col3': 'pay',
-                     'col4': 'good'}
-        form = ParserForm(parser=self.parser, data=form_data)
+        form = ParserForm(parser=self.parser, data=self.parse_form_data)
         form.is_valid()
         cd = form.cleaned_data
-
         self.assertEqual(cd['col0'], self.parser.col0)
         self.assertEqual(cd['col1'], self.parser.col1)
         self.assertEqual(cd['col2'], self.parser.col2)
         self.assertEqual(cd['col3'], self.parser.col3)
         self.assertEqual(cd['col4'], self.parser.col4)
         self.assertEqual(self.parser.owner, self.user)
-        self.assertEqual(self.parser.tab, self.tab)
-

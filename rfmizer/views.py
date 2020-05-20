@@ -41,18 +41,18 @@ class Upload(LoginRequiredMixin, CreateView):
         cd = form.cleaned_data
         new_file = UserFiles(file=cd['file'], owner=owner)
         new_file.save()
-        self.request.session['file'] = new_file.id
+        self.request.session['file'] = new_file.pk
         if cd['name']:
             print(cd['name'])
             tab = form.save(commit=False)
             tab.owner = owner
             tab.save()
-            self.request.session['tab'] = tab.id
+            self.request.session['tab'] = tab.pk
             self.request.session['tab_is_new'] = True
             return super().form_valid(form)
         else:
             tab = cd['choice_exist_tab']
-            self.request.session['tab'] = tab.id
+            self.request.session['tab'] = tab.pk
             self.request.session['tab_is_new'] = False
             return redirect('/parse/')
 
@@ -64,16 +64,16 @@ class Parse(LoginRequiredMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super(Parse, self).get_form_kwargs()
         file = UserFiles.object.get(pk=self.request.session['file'])
-        file = CsvFileHandler(file.file.path)
-        parser = HandlerRawData(file)
+        reader = CsvFileHandler(file.file.path)
+        parser = HandlerRawData(reader)
         kwargs.update({'parser': parser})
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(Parse, self).get_context_data()
         file = UserFiles.object.get(pk=self.request.session['file'])
-        file = CsvFileHandler(file.file.path)
-        parser = HandlerRawData(file)
+        reader = CsvFileHandler(file.file.path)
+        parser = HandlerRawData(reader)
 
         context['lines'] = parser.take_lines(3)
 
@@ -82,16 +82,13 @@ class Parse(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         tab_is_new = self.request.session['tab_is_new']
         file = UserFiles.object.get(pk=self.request.session['file'])
-        file = CsvFileHandler(file.file.path)
-        parser = HandlerRawData(file)
+        reader = CsvFileHandler(file.file.path)
+        parser = HandlerRawData(reader)
         parser.owner = self.request.user
-        parser.tab = self.request.session['tab']
+        tab = ManageTable.objects.get(pk=self.request.session['tab'])
+        parser.tab = tab
         parser.parse()
         return super(Parse, self).form_valid(form)
-
-
-
-
 
 class Log(LoginRequiredMixin, TemplateView):
     template_name = 'personal/log.html'

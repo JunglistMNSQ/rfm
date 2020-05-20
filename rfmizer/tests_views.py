@@ -1,28 +1,11 @@
-from django.contrib.auth.models import User
-from django.test import TestCase, Client
+from django.test import TestCase
+from .fixtures import FixturesMixin
 from .views import *
 
 # Create your tests here.
 
 
-class UserReadyMixin(TestCase):
-
-    def setUp(self):
-        super(UserReadyMixin, self).setUp()
-        self.client = Client()
-        self.user = User(username='TestUser')
-        self.user.save()
-        self.client.force_login(self.user)
-        self.tab_exist = ManageTable(name='SetUpTable', owner=self.user)
-        self.tab_exist.save()
-        self.file = '/Users/vladimir/Documents/testdbsheet.csv'
-
-
-class TestRegister(TestCase):
-
-    def setUp(self):
-        self.client = Client()
-
+class TestRegister(FixturesMixin, TestCase):
     def test_register_response(self):
         response = self.client.get('/register/')
         self.assertEqual(response.status_code, 200)
@@ -37,7 +20,7 @@ class TestRegister(TestCase):
         self.assertEqual(user.get_username(), 'TestUser')
 
 
-class TestUploadToParse(UserReadyMixin, TestCase):
+class TestUploadToParse(FixturesMixin, TestCase):
 
     def test_get(self):
         response = self.client.get('/upload/', )
@@ -78,17 +61,22 @@ class TestUploadToParse(UserReadyMixin, TestCase):
             self.assertEqual(response.redirect_chain,
                              [('/parse/', 302)])
 
-    # def test_parse_context(self):
-    #     response = self.client.post('/parse/', follow=True)
-    #     tab = ManageTable.objects.get(pk=self.client.session['tab'])
-    #     self.assertEqual(response.redirect_chain, (tab.slug, 302))
+    def test_parse_post(self):
+        file_obj = UserFiles(file=self.file, owner=self.user)
+        file_obj.save()
+        session = self.client.session
+        session['file'] = file_obj.id
+        session['tab'] = self.tab_exist.id
+        session.save()
+        response = self.client.post('/parse/',
+                                    self.parse_form_data,
+                                    follow=True)
+        tab = ManageTable.objects.get(pk=session['tab'])
+        self.assertEqual(response.redirect_chain, [])
 
 
-class TestLog(UserReadyMixin, TestCase):
+class TestLog(FixturesMixin, TestCase):
 
     def test_log(self):
         response = self.client.get('/log/')
         self.assertEqual(response.status_code, 200)
-
-
-

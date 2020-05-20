@@ -1,37 +1,21 @@
 from django.test import TestCase
 from .models import *
+from .fixtures import FixturesMixin
 
 # Create your tests here.
 
 
-class SetUpMixin(TestCase):
-    def setUp(self):
-        super(SetUpMixin, self).setUp()
-        self.file = '/Users/vladimir/Documents/testdbsheet.csv'
-        self.user = User()
-        self.user.save()
-        self.new_tab = ManageTable(name='test', owner=self.user)
-        self.new_tab.save()
-
-
-class TestProfile(TestCase):
-
-    def setUp(self):
-        super(TestProfile, self).setUp()
-        self.new_user = User(username='u_test')
-        self.new_user.save()
-        self.new_tab = ManageTable(name='test', owner=self.new_user)
-
+class TestProfile(FixturesMixin, TestCase):
     def test_create_user_profile(self):
-        self.assertEqual(self.new_user.profile.user, self.new_user)
+        self.assertEqual(self.user.profile.user, self.user)
 
     def test_notification(self):
-        self.new_user.profile.notification('Alert!')
-        self.assertEqual(self.new_user.profile.notification_msg,
+        self.user.profile.notification('Alert!')
+        self.assertEqual(self.user.profile.notification_msg,
                          'Alert!')
 
 
-class TestCsvFileHandler(SetUpMixin, TestCase):
+class TestCsvFileHandler(FixturesMixin, TestCase):
 
     def setUp(self):
         super(TestCsvFileHandler, self).setUp()
@@ -45,7 +29,7 @@ class TestCsvFileHandler(SetUpMixin, TestCase):
         self.assertEqual(type(line), list)
 
 
-class TestHandlerRawData(SetUpMixin, TestCase):
+class TestHandlerRawData(FixturesMixin, TestCase):
 
     def setUp(self):
         super(TestHandlerRawData, self).setUp()
@@ -71,12 +55,23 @@ class TestHandlerRawData(SetUpMixin, TestCase):
 
     def test_parse(self):
         self.parser.owner = self.user
-        self.parser.tab = self.new_tab
+        self.parser.tab = self.tab_exist
         result = self.parser.parse()
         self.assertEqual(result, True)
 
+    def test_get_or_create_person(self):
+        self.parser.parse()
+        self.assertEqual(self.parser.not_condition_data, False)
 
-class TestUserFiles(SetUpMixin, TestCase):
+    def test_corrupt_data_parse(self):
+
+        self.parser.parse()
+        self.assertEqual(self.parser.not_condition_data, False)
+
+
+
+
+class TestUserFiles(FixturesMixin, TestCase):
 
     def test_save_file(self):
         new_file = UserFiles()
@@ -86,13 +81,7 @@ class TestUserFiles(SetUpMixin, TestCase):
         self.assertTrue(UserFiles.object.get())
 
 
-
-    pass
-
-
-
-
-class TestManageTable(SetUpMixin, TestCase):
+class TestManageTable(FixturesMixin, TestCase):
     def test_save_with_work_slug(self):
         obj1 = ManageTable(name='Test1', owner=self.user)
         obj2 = ManageTable(name='Test1', owner=self.user)
