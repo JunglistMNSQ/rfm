@@ -65,14 +65,15 @@ class TestUploadToParse(FixturesMixin, TestCase):
         file_obj = UserFiles(file=self.file, owner=self.user)
         file_obj.save()
         session = self.client.session
-        session['file'] = file_obj.id
+        session['file'] = file_obj.pk
         session['tab'] = self.tab_exist.id
         session.save()
         response = self.client.post('/parse/',
-                                    self.parse_form_data,
+                                    self.column_order,
                                     follow=True)
         tab = ManageTable.objects.get(pk=session['tab'])
         self.assertEqual(response.redirect_chain, [])
+
 
 
 class TestLog(FixturesMixin, TestCase):

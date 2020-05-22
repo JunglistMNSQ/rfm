@@ -75,11 +75,11 @@ class ParserForm(forms.Form):
 
     parser = None
 
-    col0 = forms.ChoiceField(choices=DATA_TYPE, initial='name')
-    col1 = forms.ChoiceField(choices=DATA_TYPE, initial='phone')
-    col2 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
-    col3 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
-    col4 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
+    col0 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
+    col1 = forms.ChoiceField(choices=DATA_TYPE, initial='name')
+    col2 = forms.ChoiceField(choices=DATA_TYPE, initial='phone')
+    col3 = forms.ChoiceField(choices=DATA_TYPE, initial='good')
+    col4 = forms.ChoiceField(choices=DATA_TYPE, initial='pay')
 
     def __init__(self, *args, **kwargs):
         self.parser = kwargs.pop('parser')

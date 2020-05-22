@@ -11,7 +11,7 @@ from django.utils import timezone
 from multiselectfield import MultiSelectField
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.validators \
-    import validate_international_phonenumber
+    import validate_international_phonenumber as phone_validate
 from uuslug import uuslug
 
 # Create your models here.
@@ -63,6 +63,7 @@ class HandlerRawData:
     col2 = None
     col3 = None
     col4 = None
+    order = []
 
     def __init__(self, obj):
         self.bound_obj = obj
@@ -89,33 +90,50 @@ class HandlerRawData:
     def parse(self):
         self.take_lines()
         self.col_order()
-        prep_line = {}
         for line in self.raw_data:
-            prep_line = {}
-            prep_line[self.col0] = line[0]
-            prep_line[self.col1] = line[1]
-            prep_line[self.col2] = line[2]
-            prep_line[self.col3] = line[3]
-            prep_line[self.col4] = line[4]
-            prep_line['owner'] = self.owner
-            prep_line['table'] = self.tab
-            res = Person.get_data_line(prep_line)
-            if not res:
+            try:
+                prep_line = {}
+                column = 0
+                for key in self.order:
+                    prep_line[key] = line[column].title()
+                    column += 1
+                prep_line['owner'] = self.owner
+                prep_line['tab'] = self.tab
+                prep_line['phone'] = phone_validate(
+                    self.phone(prep_line['phone'])
+                )
+                prep_line['date'] = self.date(prep_line['date'])
+                res = Person.get_new_line(prep_line)
+                if not res:
+                    self.not_condition_data.append(line)
+                # return prep_line, self.order, line
+            except BaseException:
                 self.not_condition_data.append(line)
+                # return prep_line, self.order, line
         return True
 
     def col_order(self):
         col = 0
-        order = []
         while True:
             try:
-                attr = hasattr(self, 'col' + str(col))
-                value = getattr(self, attr)
-                order.append((attr, value))
+                hasattr(self, 'col' + str(col))
+                self.order.append(getattr(self, 'col' + str(col)))
                 col += 1
-            except BaseException:
+            except AttributeError:
                 break
-        return order
+        return self.order
+
+    def phone(self, phone):
+        if re.match(r'\+', phone):
+            return phone
+        if re.match(r'80', phone) and len(phone) == 11:
+            return re.sub(r'80', '+375', phone, count=1)
+        else:
+            return '+' + phone
+
+    def date(self, date):
+        dt = re.findall(r'(\d{2}).(\d{2}).(\d{4})', date)[0]
+        return f'{dt[2]}-{dt[1]}-{dt[0]}'
 
 
 class UserFiles(models.Model):
@@ -212,7 +230,7 @@ class Person(models.Model):
                               on_delete=models.CASCADE,)
     slug = models.CharField(max_length=100)
     name = models.TextField()
-    phone = PhoneNumberField()
+    phone = PhoneNumberField(validators=[phone_validate])
     last_deal = models.DateField(null=True)
     pays = models.IntegerField(null=True)
     deal_count = models.IntegerField(null=True)
@@ -220,13 +238,24 @@ class Person(models.Model):
     rfm_category = models.TextField(default='000')
     active_client = models.BooleanField(choices=ACTIVE_CLIENT,
                                         default=True,)
-    table = models.ForeignKey(ManageTable,
-                              on_delete=models.CASCADE,)
+    tab = models.ForeignKey(ManageTable,
+                            on_delete=models.CASCADE,)
     last_sent = models.DateField(null=True)
     rfm_move = models.TextField(default='000000')
     rfm_flag = models.BooleanField(default=False)
 
     objects = models.Manager()
+
+    @classmethod
+    def get_new_line(cls, data):
+        obj, create = Person.objects.get_or_create(
+            tab=data['tab'],
+            owner=data['owner'],
+            phone=data['phone'],
+            name=data['name']
+        )
+        obj.save()
+        return True
 
     def rfm_category_update(self, rfm):
         if self.rfm_category != rfm:
@@ -255,8 +284,8 @@ class Person(models.Model):
         super(Person, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        table = self.table
-        return reverse('client_card', args=[table.slug,
+        tab = self.tab
+        return reverse('client_card', args=[tab.slug,
                                             self.slug])
 
 
@@ -267,4 +296,5 @@ class ListDeals(models.Model):
     pay = models.PositiveIntegerField()
     good = models.TextField()
 
-    deals = models.Manager()
+    objects = models.Manager()
+

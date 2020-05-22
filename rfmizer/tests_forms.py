@@ -42,7 +42,7 @@ class TestParserForm(FixturesMixin, TestCase):
         self.assertEqual(form.parser, self.parser)
 
     def test_parser_form_clean(self):
-        form = ParserForm(parser=self.parser, data=self.parse_form_data)
+        form = ParserForm(parser=self.parser, data=self.column_order)
         form.is_valid()
         cd = form.cleaned_data
         self.assertEqual(cd['col0'], self.parser.col0)

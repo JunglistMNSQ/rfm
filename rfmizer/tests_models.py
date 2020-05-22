@@ -35,6 +35,8 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         super(TestHandlerRawData, self).setUp()
         self.obj = CsvFileHandler(self.file)
         self.parser = HandlerRawData(self.obj)
+        for key, value in self.column_order.items():
+            setattr(self.parser, key, value)
 
     def test_init_with_object(self):
         bound = self.parser.bound_obj
@@ -60,19 +62,51 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         self.assertEqual(result, True)
 
     def test_get_or_create_person(self):
+        name_list = ['Hаталья', 'Евгения', 'Анжела', 'Елена']
+        self.parser.owner = self.user
+        self.parser.tab = self.tab_exist
         self.parser.parse()
+        person_list = Person.objects.filter(owner=self.user,
+                                            tab=self.tab_exist)
+        self.assertTrue(person_list)
         self.assertEqual(self.parser.not_condition_data, False)
+        for person in person_list:
+            self.assertTrue(person.name in name_list)
 
     def test_corrupt_data_parse(self):
+        obj = CsvFileHandler(self.file_corrupt)
+        parser = HandlerRawData(obj)
+        parser.owner = self.user
+        parser.tab = self.tab_exist
+        for key, value in self.column_order.items():
+            setattr(parser, key, value)
+        parser.parse()
+        self.assertTrue(parser.not_condition_data)
 
-        self.parser.parse()
-        self.assertEqual(self.parser.not_condition_data, False)
 
+class TestPerson(FixturesMixin, TestCase):
+    def setUp(self):
+        super(TestPerson, self).setUp()
+        self.prep_line = {'owner': self.user,
+                          'tab': self.tab_exist,
+                          'name': 'Екатерина великая',
+                          'phone': '+375291516065',
+                          'date': '23.04.2020',
+                          'pay': '135',
+                          'good': 'Печенеги'}
 
+    def test_create_person(self):
+        Person.get_new_line(self.prep_line)
+        person = Person.objects.get(phone=self.prep_line['phone'])
+        self.assertEqual(person.name, self.prep_line['name'])
+
+    def test_clean_data(self):
+        Person.get_new_line(self.prep_line)
+        person = Person.objects.get(phone=self.prep_line['phone'])
+        self.assertIsInstance(person.phone, PhoneNumberField.attr_class)
 
 
 class TestUserFiles(FixturesMixin, TestCase):
-
     def test_save_file(self):
         new_file = UserFiles()
         new_file.file = self.file
