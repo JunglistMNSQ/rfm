@@ -15,6 +15,7 @@
     С понедельника по пятницу в 10:00  по Минску приложение пересчитывает RFM для всех клиенто в активных таблицах.
     </p>
     <hr>
+    {% comment %}
     {% if msg %}<h2>{{ msg }}</h2>{% endif %}
     <form method="post">
 
@@ -63,5 +64,6 @@
         <hr>
         <a href="{% url "rules" tab.slug %}" class="button">Управление рассылкой</a>
     </p>
+    {% endcomment %}
 
 {% endblock %}

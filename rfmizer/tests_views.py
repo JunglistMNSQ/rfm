@@ -38,7 +38,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
             )
             session = self.client.session
             tab = ManageTable.objects.get(pk=session['tab'])
-            # self.assertTrue(response.context['lines'])
+            self.assertTrue(response.context['lines'])
             self.assertEqual(tab.name, 'test1')
             self.assertTrue(session['tab_is_new'])
             self.assertEqual(response.status_code, 200)
@@ -54,6 +54,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
                 follow=True
             )
             session = self.client.session
+            session.save()
             tab = ManageTable.objects.get(pk=session['tab'])
             self.assertTrue(response.context['lines'])
             self.assertEqual(session['tab_is_new'], False)
@@ -62,6 +63,8 @@ class TestUploadToParse(FixturesMixin, TestCase):
                              [('/parse/', 302)])
 
     def test_parse_post(self):
+        # with open(self.file) as f:
+
         file_obj = UserFiles(file=self.file, owner=self.user)
         file_obj.save()
         session = self.client.session
@@ -69,11 +72,10 @@ class TestUploadToParse(FixturesMixin, TestCase):
         session['tab'] = self.tab_exist.id
         session.save()
         response = self.client.post('/parse/',
-                                    self.column_order,
-                                    follow=True)
+                                    data=self.column_order,
+                                    )
         tab = ManageTable.objects.get(pk=session['tab'])
-        self.assertEqual(response.redirect_chain, [])
-
+        self.assertEqual(response, [self.tab_exist.slug])
 
 
 class TestLog(FixturesMixin, TestCase):

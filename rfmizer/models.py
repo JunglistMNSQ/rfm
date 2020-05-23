@@ -63,7 +63,6 @@ class HandlerRawData:
     col2 = None
     col3 = None
     col4 = None
-    order = []
 
     def __init__(self, obj):
         self.bound_obj = obj
@@ -89,51 +88,36 @@ class HandlerRawData:
 
     def parse(self):
         self.take_lines()
-        self.col_order()
+        order = self.get_col_order()
         for line in self.raw_data:
             try:
                 prep_line = {}
-                column = 0
-                for key in self.order:
-                    prep_line[key] = line[column].title()
-                    column += 1
+                col = 0
+                for key in order:
+                    prep_line[key] = line[col]
+                    col += 1
                 prep_line['owner'] = self.owner
                 prep_line['tab'] = self.tab
-                prep_line['phone'] = phone_validate(
-                    self.phone(prep_line['phone'])
-                )
-                prep_line['date'] = self.date(prep_line['date'])
-                res = Person.get_new_line(prep_line)
-                if not res:
-                    self.not_condition_data.append(line)
+                # prep_line['date'] = self.date(prep_line['date'])
+                Person.get_new_line(prep_line)
+                # if not res:
+                #     self.not_condition_data.append(line)
                 # return prep_line, self.order, line
-            except BaseException:
+            except ValidationError:
                 self.not_condition_data.append(line)
-                # return prep_line, self.order, line
         return True
 
-    def col_order(self):
+    def get_col_order(self):
+        order = []
         col = 0
         while True:
             try:
                 hasattr(self, 'col' + str(col))
-                self.order.append(getattr(self, 'col' + str(col)))
+                order.append(getattr(self, 'col' + str(col)))
                 col += 1
             except AttributeError:
                 break
-        return self.order
-
-    def phone(self, phone):
-        if re.match(r'\+', phone):
-            return phone
-        if re.match(r'80', phone) and len(phone) == 11:
-            return re.sub(r'80', '+375', phone, count=1)
-        else:
-            return '+' + phone
-
-    def date(self, date):
-        dt = re.findall(r'(\d{2}).(\d{2}).(\d{4})', date)[0]
-        return f'{dt[2]}-{dt[1]}-{dt[0]}'
+        return order
 
 
 class UserFiles(models.Model):
@@ -248,14 +232,58 @@ class Person(models.Model):
 
     @classmethod
     def get_new_line(cls, data):
-        obj, create = Person.objects.get_or_create(
+        phone = cls.phone_(data['phone'])
+        phone_validate(phone)
+        deal = {'date': data['date'],
+                'pay': data['pay'],
+                'good': data['good'].title()}
+        obj, create = cls.objects.get_or_create(
             tab=data['tab'],
             owner=data['owner'],
-            phone=data['phone'],
-            name=data['name']
+            phone=phone,
+            name=data['name'].title()
         )
         obj.save()
+        obj.add_deal(deal)
         return True
+
+    @classmethod
+    def phone_(cls, phone):
+        if re.match(r'\+', phone):
+            return phone
+        if re.match(r'80', phone) and len(phone) == 11:
+            return re.sub(r'80', '+375', phone, count=1)
+        else:
+            return '+' + phone
+
+    @classmethod
+    def date_(cls, date):
+        dt = re.findall(r'(\d{2}).(\d{2}).(\d{4})', date)[0]
+        return f'{dt[2]}-{dt[1]}-{dt[0]}'
+
+    def add_deal(self, deal):
+        deal['date'] = self.date_(deal['date'])
+        deal['person'] = self
+        new_deal, flag = Deals.objects.get_or_create(**deal)
+        if flag:
+            new_deal.save()
+            self.summary()
+        self.save()
+        return True
+
+    def summary(self):
+        deals = Deals.objects.filter(person=self)
+        pays = 0
+        deal_count = 0
+        for deal in deals:
+            pays += deal.pay
+            deal_count += 1
+            if not self.last_deal or deal.date > self.last_deal:
+                self.last_deal = deal.date
+            self.save()
+        self.pays = pays
+        self.deal_count = deal_count
+        self.save()
 
     def rfm_category_update(self, rfm):
         if self.rfm_category != rfm:
@@ -289,7 +317,7 @@ class Person(models.Model):
                                             self.slug])
 
 
-class ListDeals(models.Model):
+class Deals(models.Model):
     person = models.ForeignKey(Person,
                                on_delete=models.CASCADE)
     date = models.DateField()
@@ -298,3 +326,5 @@ class ListDeals(models.Model):
 
     objects = models.Manager()
 
+    def __str__(self):
+        return f'{self.date} {self.good} {self.pay}'

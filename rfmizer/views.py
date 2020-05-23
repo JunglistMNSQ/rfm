@@ -61,34 +61,43 @@ class Parse(LoginRequiredMixin, FormView):
     template_name = 'personal/parse.html'
     form_class = ParserForm
 
-    def get_form_kwargs(self):
-        kwargs = super(Parse, self).get_form_kwargs()
-        file = UserFiles.object.get(pk=self.request.session['file'])
-        reader = CsvFileHandler(file.file.path)
-        parser = HandlerRawData(reader)
-        kwargs.update({'parser': parser})
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super(Parse, self).get_context_data()
         file = UserFiles.object.get(pk=self.request.session['file'])
         reader = CsvFileHandler(file.file.path)
         parser = HandlerRawData(reader)
-
         context['lines'] = parser.take_lines(3)
-
         return context
 
     def form_valid(self, form):
-        tab_is_new = self.request.session['tab_is_new']
+        # tab_is_new = self.request.session['tab_is_new']
         file = UserFiles.object.get(pk=self.request.session['file'])
         reader = CsvFileHandler(file.file.path)
         parser = HandlerRawData(reader)
+        cd = form.cleaned_data
+        col = 0
+        while True:
+            try:
+                value = cd['col' + str(col)]
+                setattr(parser, 'col' + str(col), value)
+                col += 1
+            except KeyError:
+                break
         parser.owner = self.request.user
         tab = ManageTable.objects.get(pk=self.request.session['tab'])
         parser.tab = tab
         parser.parse()
+        file.delete()
         return super(Parse, self).form_valid(form)
+    
+    def get_success_url(self):
+        tab = ManageTable.objects.get(pk=self.request.session['tab'])
+        return reverse('manage_tab', kwargs={'slug': tab.slug})
+
+
+class ManageTab(LoginRequiredMixin, TemplateView):
+    template_name = 'personal/manage.html'
+
 
 class Log(LoginRequiredMixin, TemplateView):
     template_name = 'personal/log.html'

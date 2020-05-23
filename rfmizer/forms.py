@@ -73,30 +73,18 @@ class ParserForm(forms.Form):
                  ('pay', 'Сумма сделки'),
                  ('good', 'Услуга / Товар')]
 
-    parser = None
-
     col0 = forms.ChoiceField(choices=DATA_TYPE, initial='date')
     col1 = forms.ChoiceField(choices=DATA_TYPE, initial='name')
     col2 = forms.ChoiceField(choices=DATA_TYPE, initial='phone')
     col3 = forms.ChoiceField(choices=DATA_TYPE, initial='good')
     col4 = forms.ChoiceField(choices=DATA_TYPE, initial='pay')
 
-    def __init__(self, *args, **kwargs):
-        self.parser = kwargs.pop('parser')
-        super(ParserForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         super().clean()
         cd = self.cleaned_data
         if cd['col0'] != cd['col1'] != cd['col2'] != cd['col3'] != cd['col4']:
-            col = 0
-            while True:
-                try:
-                    value = cd['col' + str(col)]
-                    setattr(self.parser, 'col' + str(col), value)
-                    col += 1
-                except KeyError:
-                    break
+            pass
         else:
             raise ValidationError('Значения в шапке таблице не '
                                   'должны повторяться')

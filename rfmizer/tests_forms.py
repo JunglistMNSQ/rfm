@@ -31,23 +31,8 @@ class TestCreateOrUpdateForm(FixturesMixin, TestCase):
 
 
 class TestParserForm(FixturesMixin, TestCase):
-    def setUp(self):
-        super(TestParserForm, self).setUp()
-        self.reader = CsvFileHandler(self.file)
-        self.parser = HandlerRawData(self.reader)
-        self.parser.owner = self.user
-
-    def test_parser_form_init(self):
-        form = ParserForm(parser=self.parser)
-        self.assertEqual(form.parser, self.parser)
 
     def test_parser_form_clean(self):
-        form = ParserForm(parser=self.parser, data=self.column_order)
-        form.is_valid()
-        cd = form.cleaned_data
-        self.assertEqual(cd['col0'], self.parser.col0)
-        self.assertEqual(cd['col1'], self.parser.col1)
-        self.assertEqual(cd['col2'], self.parser.col2)
-        self.assertEqual(cd['col3'], self.parser.col3)
-        self.assertEqual(cd['col4'], self.parser.col4)
-        self.assertEqual(self.parser.owner, self.user)
+        form = ParserForm(data=self.column_order)
+        res = form.is_valid()
+        self.assertTrue(res)
