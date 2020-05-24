@@ -21,14 +21,13 @@ class TestRegister(FixturesMixin, TestCase):
 
 
 class TestUploadToParse(FixturesMixin, TestCase):
-
     def test_get(self):
         response = self.client.get('/upload/', )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ManageTable.objects.filter(owner=self.user)[0],
                          self.tab_exist)
 
-    def test_create(self):
+    def test_create_and_parse_corrupt_file(self):
         with open(self.file) as f:
             response = self.client.post(
                 '/upload/',
@@ -37,6 +36,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
                 follow=True
             )
             session = self.client.session
+            session.save()
             tab = ManageTable.objects.get(pk=session['tab'])
             self.assertTrue(response.context['lines'])
             self.assertEqual(tab.name, 'test1')
@@ -45,7 +45,17 @@ class TestUploadToParse(FixturesMixin, TestCase):
             self.assertEqual(response.redirect_chain,
                              [('/parse/', 302)])
 
-    def test_update(self):
+            response = self.client.post('/parse/',
+                                        {'col4': 'date',
+                                         'col3': 'name',
+                                         'col2': 'phone',
+                                         'col1': 'good',
+                                         'col0': 'pay'},
+                                        follow=True
+                                        )
+            # self.assertEqual(response.redirect_chain, [('corrupt', 302)])
+
+    def test_update_and_parse(self):
         with open(self.file) as f:
             response = self.client.post(
                 '/upload/',
@@ -61,25 +71,35 @@ class TestUploadToParse(FixturesMixin, TestCase):
             self.assertEqual(tab.name, self.tab_exist.name)
             self.assertEqual(response.redirect_chain,
                              [('/parse/', 302)])
+            response = self.client.post('/parse/',
+                                        self.column_order,
+                                        follow=True
+                                        )
+            tab = ManageTable.objects.get(pk=session['tab'])
+            self.assertEqual(
+                response.redirect_chain,
+                [('/my_tables/' + self.tab_exist.slug, 302)]
+            )
 
-    def test_parse_post(self):
-        # with open(self.file) as f:
 
-        file_obj = UserFiles(file=self.file, owner=self.user)
-        file_obj.save()
-        session = self.client.session
-        session['file'] = file_obj.pk
-        session['tab'] = self.tab_exist.id
-        session.save()
-        response = self.client.post('/parse/',
-                                    data=self.column_order,
-                                    )
-        tab = ManageTable.objects.get(pk=session['tab'])
-        self.assertEqual(response, [self.tab_exist.slug])
+class TestMyTables(FixturesMixin, TestCase):
+    def test_get(self):
+        response = self.client.get('/my_tables/')
+        tabs_on_page = response.context['list_tab']
+        tabs_in_db = ManageTable.objects.filter(owner=self.user)
+        self.assertQuerysetEqual(tabs_on_page, ['<ManageTable: test>'])
+        self.assertEqual(response.status_code, 200)
 
+
+class TestDeleteTab(FixturesMixin, TestCase):
+    def test_post(self):
+        test_tab = ManageTable(owner=self.user, name='test_del')
+        test_tab.save()
+        self.assertEqual(test_tab.name, 'test_del')
+        response = self.client.post('/delete/')
+        self.assertFalse(test_tab)
 
 class TestLog(FixturesMixin, TestCase):
-
     def test_log(self):
         response = self.client.get('/log/')
         self.assertEqual(response.status_code, 200)

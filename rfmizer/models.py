@@ -58,11 +58,12 @@ class CsvFileHandler(csv.Sniffer):
 
 class HandlerRawData:
 
-    col0 = None
-    col1 = None
-    col2 = None
-    col3 = None
-    col4 = None
+    # col0 = None
+    # col1 = None
+    # col2 = None
+    # col3 = None
+    # col4 = None
+    order = []
 
     def __init__(self, obj):
         self.bound_obj = obj
@@ -88,24 +89,24 @@ class HandlerRawData:
 
     def parse(self):
         self.take_lines()
-        order = self.get_col_order()
+        # order = self.get_col_order()
         for line in self.raw_data:
             try:
                 prep_line = {}
                 col = 0
-                for key in order:
+                for key in self.order:
                     prep_line[key] = line[col]
                     col += 1
                 prep_line['owner'] = self.owner
                 prep_line['tab'] = self.tab
-                # prep_line['date'] = self.date(prep_line['date'])
                 Person.get_new_line(prep_line)
-                # if not res:
-                #     self.not_condition_data.append(line)
-                # return prep_line, self.order, line
-            except ValidationError:
+            except BaseException:
                 self.not_condition_data.append(line)
-        return True
+
+        if not self.not_condition_data:
+            return True
+        else:
+            return False, self.not_condition_data
 
     def get_col_order(self):
         order = []

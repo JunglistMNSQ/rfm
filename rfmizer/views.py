@@ -76,13 +76,16 @@ class Parse(LoginRequiredMixin, FormView):
         parser = HandlerRawData(reader)
         cd = form.cleaned_data
         col = 0
+        order = []
         while True:
             try:
-                value = cd['col' + str(col)]
-                setattr(parser, 'col' + str(col), value)
+                order.append(cd['col' + str(col)])
+                # setattr(parser, 'col' + str(col), value)
                 col += 1
             except KeyError:
                 break
+            finally:
+                parser.order = order
         parser.owner = self.request.user
         tab = ManageTable.objects.get(pk=self.request.session['tab'])
         parser.tab = tab
@@ -95,8 +98,24 @@ class Parse(LoginRequiredMixin, FormView):
         return reverse('manage_tab', kwargs={'slug': tab.slug})
 
 
-class ManageTab(LoginRequiredMixin, TemplateView):
+class MyTables(LoginRequiredMixin, ListView):
+    template_name = 'personal/my_tables.html'
+    model = ManageTable
+
+    def get_context_data(self, **kwargs):
+        context = super(MyTables, self).get_context_data()
+        list_tab = ManageTable.objects.filter(owner=self.request.user)
+        context['list_tab'] = list_tab
+        return context
+
+
+class ManageTab(LoginRequiredMixin, DetailView):
     template_name = 'personal/manage.html'
+    model = ManageTable
+
+
+class Delete(LoginRequiredMixin, DeleteView):
+    template_name = 'personal/del.html'
 
 
 class Log(LoginRequiredMixin, TemplateView):

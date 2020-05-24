@@ -30,13 +30,11 @@ class TestCsvFileHandler(FixturesMixin, TestCase):
 
 
 class TestHandlerRawData(FixturesMixin, TestCase):
-
     def setUp(self):
         super(TestHandlerRawData, self).setUp()
         self.obj = CsvFileHandler(self.file)
         self.parser = HandlerRawData(self.obj)
-        for key, value in self.column_order.items():
-            setattr(self.parser, key, value)
+        self.parser.order = ['date', 'name', 'phone', 'good', 'pay']
 
     def test_init_with_object(self):
         bound = self.parser.bound_obj
