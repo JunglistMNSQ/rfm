@@ -52,8 +52,16 @@ class CsvFileHandler(csv.Sniffer):
 
     def get_line(self):
         line = self.file.__next__()
+        if len(self.data) == 0:
+            line = self.bom_replace(line)
         self.data.append(line)
         return line
+
+    def bom_replace(self, line):
+        if line[0].startswith('\ufeff'):
+            line[0] = line[0].replace('\ufeff', '')
+        return line
+
 
 
 class HandlerRawData:
@@ -63,7 +71,7 @@ class HandlerRawData:
     # col2 = None
     # col3 = None
     # col4 = None
-    order = []
+    # order = []
 
     def __init__(self, obj):
         self.bound_obj = obj
@@ -90,7 +98,9 @@ class HandlerRawData:
     def parse(self):
         self.take_lines()
         # order = self.get_col_order()
+        count = 0
         for line in self.raw_data:
+            count += 1
             try:
                 prep_line = {}
                 col = 0
@@ -101,12 +111,11 @@ class HandlerRawData:
                 prep_line['tab'] = self.tab
                 Person.get_new_line(prep_line)
             except BaseException:
-                self.not_condition_data.append(line)
-
-        if not self.not_condition_data:
-            return True
+                self.not_condition_data.append((count, line))
+        if self.not_condition_data:
+            return self.not_condition_data
         else:
-            return False, self.not_condition_data
+            return False
 
     def get_col_order(self):
         order = []

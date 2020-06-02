@@ -1,0 +1,40 @@
+{% extends "generic.html" %}
+
+{% block h1 %}Список поврежденных строк{% endblock %}
+
+{% block content %}
+    <table class="alt" width="100%">
+        {% for line in object_list %}
+            <tr>
+                <td>Строка # {{ line.0 }}</td>
+                {% for col in line.1 %}
+                <td>{{ col }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <div align="center">
+
+            {% if page_obj.has_previous %}
+                <span>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="button primary small">Назад</a>
+                </span>
+            {% else %}
+                <span class="button primary small disabled">Назад</span>
+            {% endif %}
+
+
+        <span>Страница {{ paginator.number }} из {{ paginator.paginator.num_pages }}.</span>
+
+
+            {% if page_obj.has_next %}
+                <span>
+                    <a href="?page={{ page_obj.next_page_number }}" class="button primary small">Вперед</a>
+                </span>
+            {% else %}
+                <span class="button primary small disabled">Вперед</span>
+            {% endif %}
+    </div>
+    <a href="{% url "manage_tab" tab.slug %}" class="button">Перейти к таблице</a>
+{% endblock %}
+

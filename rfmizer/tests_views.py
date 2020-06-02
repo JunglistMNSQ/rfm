@@ -53,7 +53,11 @@ class TestUploadToParse(FixturesMixin, TestCase):
                                          'col0': 'pay'},
                                         follow=True
                                         )
-            # self.assertEqual(response.redirect_chain, [('corrupt', 302)])
+            self.assertEqual(response.redirect_chain,
+                             [('/corrupt_data/',
+                               302)])
+            self.assertEqual(response.status_code, 200)
+            # self.assertTemplateUsed(response, 'corrupt.html')
 
     def test_update_and_parse(self):
         with open(self.file) as f:
@@ -93,11 +97,14 @@ class TestMyTables(FixturesMixin, TestCase):
 
 class TestDeleteTab(FixturesMixin, TestCase):
     def test_post(self):
-        test_tab = ManageTable(owner=self.user, name='test_del')
+        test_tab = ManageTable(owner=self.user, name='test_tab_del')
         test_tab.save()
-        self.assertEqual(test_tab.name, 'test_del')
-        response = self.client.post('/delete/')
-        self.assertFalse(test_tab)
+        url = reverse('delete', args=(test_tab.slug, ))
+        response = self.client.post(url,
+                                    follow=True)
+        self.assertEqual(response.redirect_chain,
+                         [('/my_tables', 302), ('/my_tables/', 301)])
+
 
 class TestLog(FixturesMixin, TestCase):
     def test_log(self):

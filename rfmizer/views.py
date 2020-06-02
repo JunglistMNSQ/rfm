@@ -89,13 +89,31 @@ class Parse(LoginRequiredMixin, FormView):
         parser.owner = self.request.user
         tab = ManageTable.objects.get(pk=self.request.session['tab'])
         parser.tab = tab
-        parser.parse()
+        corrupt_data = parser.parse()
         file.delete()
+        if corrupt_data:
+            self.request.session['data'] = corrupt_data
+            return redirect('/corrupt_data/')
         return super(Parse, self).form_valid(form)
     
     def get_success_url(self):
         tab = ManageTable.objects.get(pk=self.request.session['tab'])
         return reverse('manage_tab', kwargs={'slug': tab.slug})
+
+
+class CorruptData(LoginRequiredMixin, ListView):
+    template_name = 'personal/corrupt_data.html'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = self.request.session['data']
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(CorruptData, self).get_context_data()
+        tab = ManageTable.objects.get(pk=self.request.session['tab'])
+        context['tab'] = tab
+        return context
 
 
 class MyTables(LoginRequiredMixin, ListView):
@@ -104,8 +122,9 @@ class MyTables(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MyTables, self).get_context_data()
-        list_tab = ManageTable.objects.filter(owner=self.request.user)
-        context['list_tab'] = list_tab
+        context['list_tab'] = ManageTable.objects.filter(
+            owner=self.request.user
+        )
         return context
 
 
@@ -116,6 +135,11 @@ class ManageTab(LoginRequiredMixin, DetailView):
 
 class Delete(LoginRequiredMixin, DeleteView):
     template_name = 'personal/del.html'
+    model = ManageTable
+    success_url = '/my_tables'
+    
+    def get_object(self, queryset=None):
+        return super(Delete, self).get_object()
 
 
 class Log(LoginRequiredMixin, TemplateView):

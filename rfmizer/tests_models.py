@@ -28,6 +28,12 @@ class TestCsvFileHandler(FixturesMixin, TestCase):
         line = self.obj.get_line()
         self.assertEqual(type(line), list)
 
+    def test_bom_replace(self):
+        line = ['\ufeffData', 'data2', 'dada']
+        line = self.obj.bom_replace(line)
+        self.assertEqual(line[0], 'Data')
+
+
 
 class TestHandlerRawData(FixturesMixin, TestCase):
     def setUp(self):
@@ -57,7 +63,7 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         self.parser.owner = self.user
         self.parser.tab = self.tab_exist
         result = self.parser.parse()
-        self.assertEqual(result, True)
+        self.assertEqual(result, False)
 
     def test_get_or_create_person(self):
         name_list = ['Наталья', 'Евгения', 'Анжела', 'Елена']
