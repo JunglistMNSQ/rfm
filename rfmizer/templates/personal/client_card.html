@@ -1,6 +1,6 @@
 {% extends "generic.html" %}
 
-{% block h1 %}Карточка клиента {{ client.name }} # {{ client.id }} {% if msg %}{{ msg }}{% endif %}{% endblock %}
+{% block h1 %}Карточка клиента {{ object.name }} # {{ object.id }} {% if msg %}{{ msg }}{% endif %}{% endblock %}
 
 {% block content %}
     <form method="post">
@@ -10,19 +10,19 @@
                 <td>Имя</td>
                 <td>Телефон</td>
                 <td>Последняя сделка</td>
-                <td>Сумма платежей</td>
-                <td>RFM Сегмент</td>
+                <td>Сумма</td>
+                <td>RFM</td>
                 <td>Последняя рассылка</td>
-                <td>Клиент активен</td>
-                <td>Управление</td>
+                <td>Активен</td>
+                <td></td>
             </tr>
             <tr>
-                <td>{{ client.name }}</td>
+                <td>{{ object.name }}</td>
                 <td>{{ form.phone }}</td>
-                <td>{{ client.last_deal }}</td>
-                <td>{{ client.pays }}</td>
-                <td>{{ client.rfm_category }}</td>
-                <td>{{ client.last_sent }}</td>
+                <td>{{ object.last_deal }}</td>
+                <td>{{ object.pays }}</td>
+                <td>{{ object.rfm_category }}</td>
+                <td>{{ object.last_sent }}</td>
                 <td>{{ form.active_client }}</td>
                 <td><input type="submit" value="Сохранить" class="button primary fit"></td>
             </tr>
@@ -30,6 +30,12 @@
         {% if form.errors %}{{ form.errors }}{% endif %}
         {% csrf_token %}
     </form>
-<p><a href="{% url "clients_list" slug_tab %}" class="button primary fit">Вернуться к списку клиентов</a></p>
+
+<p><a href="{% url "client_list" tab.slug %}" class="button primary fit">Вернуться к списку клиентов</a>
+    <hr>
+</p>
+    {% for deal in obj_list %}
+        {{ deal }}
+    {% endfor %}
 
 {% endblock %}

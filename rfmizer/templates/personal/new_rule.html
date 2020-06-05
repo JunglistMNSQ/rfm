@@ -12,7 +12,7 @@
     <br>
     Правило будет запускать рассылку с понедельника по пятницу в 10:15 по Минску.
     </p>
-    <a href="{% url "rules" slug %}" class="button">Вернуться обратно к списку</a>
+    <a href="{% url "rules" tab.slug %}" class="button">Вернуться обратно к списку</a>
     <hr>
     <form method="post">
         {% csrf_token %}
@@ -38,6 +38,6 @@
         </div>
     </form>
     <hr>
-    <a href="{% url "rules" slug %}" class="button">Вернуться обратно к списку</a>
+    <a href="{% url "rules" tab.slug %}" class="button">Вернуться обратно к списку</a>
 
 {% endblock %}

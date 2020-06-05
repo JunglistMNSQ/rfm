@@ -3,7 +3,7 @@
 {% block h1 %}Список клиентов из таблицы {{ tab }}{% endblock %}
 
 {% block content %}
-{% if clients %}
+{% if obj_list %}
     <table id="sort" class="sort">
         <thead>
         <tr>
@@ -18,7 +18,7 @@
         </tr>
         </thead>
 
-    {% for client in clients %}
+    {% for client in obj_list %}
         <tr>
             <td>{{ client }}</td>
             <td>{{ client.phone }}</td>
@@ -33,21 +33,21 @@
     </table>
     <div align="center">
 
-            {% if clients.has_previous %}
+            {% if page_obj.has_previous %}
                 <span>
-                    <a href="?page={{ clients.previous_page_number }}" class="button primary small">Назад</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="button primary small">Назад</a>
                 </span>
             {% else %}
                 <span class="button primary small disabled">Назад</span>
             {% endif %}
 
 
-        <span>Страница {{ clients.number }} из {{ clients.paginator.num_pages }}.</span>
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.</span>
 
 
-            {% if clients.has_next %}
+            {% if page_obj.has_next %}
                 <span>
-                    <a href="?page={{ clients.next_page_number }}" class="button primary small">Вперед</a>
+                    <a href="?page={{ page_obj.next_page_number }}" class="button primary small">Вперед</a>
                 </span>
             {% else %}
                 <span class="button primary small disabled">Вперед</span>

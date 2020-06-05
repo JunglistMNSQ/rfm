@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
-from .models import ManageTable
+from .models import ManageTable, Rules
 
 
 class FixturesMixin(TestCase):
@@ -13,10 +13,24 @@ class FixturesMixin(TestCase):
         self.user = User(username='TestUser')
         self.user.save()
         self.client.force_login(self.user)
-        self.tab_exist = ManageTable(name='test', owner=self.user)
+        self.tab_exist = ManageTable(name='test',
+                                     owner=self.user)
         self.tab_exist.save()
+        self.data = {'name': 'test',
+                     'phone': '+375291516065',
+                     'date': '02.06.2019',
+                     'good': 'test',
+                     'pay': 42,
+                     'owner': self.user,
+                     'tab': self.tab_exist}
         self.column_order = {'col0': 'date',
                              'col1': 'name',
                              'col2': 'phone',
                              'col3': 'good',
                              'col4': 'pay'}
+        self.rule = Rules(tab=self.tab_exist,
+                          owner=self.user,
+                          name='test_rule',
+                          from_to='333233',
+                          message='test message')
+        self.rule.save()

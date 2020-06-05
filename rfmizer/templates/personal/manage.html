@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block h1 %}Настройки и содержание таблицы {{ tab.name_table }}{% endblock %}
+{% block h1 %}Настройки и содержание таблицы {{ obj.name }}{% endblock %}
 
 {% block content %}
     <p>
@@ -59,11 +59,13 @@
     </form>
     <hr>
     <p>
-        <a href="{% url "clients_list" tab.slug %}" class="button">Посмотреть список клиентов</a>
         <a href="{% url "rfmize" tab.slug %}" class="button">Пересчитать RFM клиентов</a>
         <hr>
         <a href="{% url "rules" tab.slug %}" class="button">Управление рассылкой</a>
     </p>
+    <a href="{% url "client_list" odj.slug %}" class="button">Посмотреть список клиентов</a>
+
     {% endcomment %}
+
 
 {% endblock %}

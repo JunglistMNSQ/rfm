@@ -57,7 +57,6 @@ class TestUploadToParse(FixturesMixin, TestCase):
                              [('/corrupt_data/',
                                302)])
             self.assertEqual(response.status_code, 200)
-            # self.assertTemplateUsed(response, 'corrupt.html')
 
     def test_update_and_parse(self):
         with open(self.file) as f:
@@ -90,7 +89,6 @@ class TestMyTables(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/my_tables/')
         tabs_on_page = response.context['list_tab']
-        tabs_in_db = ManageTable.objects.filter(owner=self.user)
         self.assertQuerysetEqual(tabs_on_page, ['<ManageTable: test>'])
         self.assertEqual(response.status_code, 200)
 
@@ -110,3 +108,64 @@ class TestLog(FixturesMixin, TestCase):
     def test_log(self):
         response = self.client.get('/log/')
         self.assertEqual(response.status_code, 200)
+
+
+class TestClientList(FixturesMixin, TestCase):
+    def test_get(self):
+        url = reverse('client_list',
+                      kwargs={'slug': self.tab_exist.slug, })
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestClientCard(FixturesMixin, TestCase):
+    def test_get_post(self):
+        new_client = Person.get_new_line(self.data)
+        url = reverse('client_card',
+                      kwargs={'slug_tab': self.tab_exist.slug,
+                              'slug': new_client.slug})
+        response = self.client.get(url)
+        session = self.client.session
+        session.save()
+        self.assertEqual(response.status_code, 200)
+        # response = self.client.post(url,
+        #                             {'active_client': False,
+        #                              'phone': new_client.phone.as_e164})
+        # self.assertEqual(new_client.active_client, False)
+
+
+class TestRulesList(FixturesMixin, TestCase):
+    def test_get(self):
+        url = reverse('rules', kwargs={'slug': self.tab_exist.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestNewRule(FixturesMixin, TestCase):
+    def test_get(self):
+        url = reverse('new_rule', kwargs={'slug': self.tab_exist.slug})
+        response = self.client.get(url)
+        session = self.client.session
+        session.save()
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(url,
+                                   {'name': 'test_rule',
+                                    'on_off_rule': True,
+                                    'from_to': ['333233', '233133'],
+                                    'message': 'test message'},
+                                   follow=True)
+        rule = Rules.objects.get(name='test_rule')
+        self.assertEqual(response.redirect_chain, [302, rule.slug])
+
+
+class TestEditRule(FixturesMixin, TestCase):
+    def test_create_rule(self):
+        url = reverse('rule', kwargs={'slug_tab': self.tab_exist.slug,
+                                      'slug': self.rule.slug})
+        response = self.client.get(url)
+        session = self.client.session
+        session.save()
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url,
+                                    {'on_off_rule': False})
+        # self.assertEqual(self.rule.on_off_rule, False)

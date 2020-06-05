@@ -3,8 +3,10 @@
 {% block h1 %}Правила рассылки таблицы {{ tab }}{% endblock %}
 
 {% block content %}
+    {% comment %}
     <a href="{% url "run_rules" tab.slug %}" class="button">Запустить рассылку по всем активным правилам</a>
     <br>
+    {% endcomment %}
     <hr>
     <a href="{% url "new_rule" tab.slug %}" class="button">Создать правило</a>
     <a href="{% url "manage_tab" tab.slug %}" class="button">Вернутся к таблице</a>
@@ -18,7 +20,7 @@
             <td>Статус</td>
             <td>Подробнее</td>
             </thead>
-            {% for rule in rules %}
+            {% for rule in object_list %}
                 <tr>
                     <td>{{ rule }}</td>
                     <td>{{ rule.get_from_to_display }}</td>

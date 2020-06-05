@@ -24,7 +24,7 @@
             {% endif %}
 
 
-        <span>Страница {{ paginator.number }} из {{ paginator.paginator.num_pages }}.</span>
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
 
 
             {% if page_obj.has_next %}

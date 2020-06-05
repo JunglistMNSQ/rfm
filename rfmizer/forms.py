@@ -79,7 +79,6 @@ class ParserForm(forms.Form):
     col3 = forms.ChoiceField(choices=DATA_TYPE, initial='good')
     col4 = forms.ChoiceField(choices=DATA_TYPE, initial='pay')
 
-
     def clean(self):
         super().clean()
         cd = self.cleaned_data
@@ -113,12 +112,12 @@ class ParserForm(forms.Form):
 #         }
 #
 #
-# class ClientManage(forms.ModelForm):
-#
-#     class Meta:
-#         model = models.Person
-#         fields = ['phone', 'active_client']
-#
+class ClientManage(forms.ModelForm):
+
+    class Meta:
+        model = models.Person
+        fields = ['phone', 'active_client']
+
 #
 # class Rule(forms.ModelForm):
 #

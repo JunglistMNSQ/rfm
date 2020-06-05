@@ -70,8 +70,7 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         self.parser.owner = self.user
         self.parser.tab = self.tab_exist
         self.parser.parse()
-        person_list = Person.objects.filter(owner=self.user,
-                                            tab=self.tab_exist)
+        person_list = Person.objects.filter(tab=self.tab_exist)
         self.assertTrue(person_list)
         self.assertEqual(self.parser.not_condition_data, [])
         for person in person_list:

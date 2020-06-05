@@ -255,7 +255,7 @@ class Person(models.Model):
         )
         obj.save()
         obj.add_deal(deal)
-        return True
+        return obj
 
     @classmethod
     def phone_(cls, phone):
@@ -338,3 +338,42 @@ class Deals(models.Model):
 
     def __str__(self):
         return f'{self.date} {self.good} {self.pay}'
+
+
+class Rules(models.Model):
+    RFM = [(str(int(a+b+c)) + str(int(a+b+c)-100),
+            a+b+c + ' => ' + str(int(a+b+c)-100))
+           for a in '32' for b in '321' for c in '321']
+
+    ON_OFF = ((True, 'Правило активно'),
+              (False, 'Правило не активно'))
+
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,)
+    name = models.CharField(max_length=250, verbose_name='Название')
+    slug = models.CharField(max_length=100)
+    from_to = MultiSelectField(choices=RFM,
+                               default=None,
+                               verbose_name='При каких переходах будет '
+                                            'срабатывать триггер.')
+    message = models.TextField(verbose_name='Текст рассылки. '
+                                            'Можно персонализоровать с '
+                                            'помощью {name}.')
+    on_off_rule = models.BooleanField(default=True,
+                                      choices=ON_OFF)
+    tab = models.ForeignKey(ManageTable,
+                            on_delete=models.CASCADE,)
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = uuslug(self.name, instance=self)
+        super(Rules, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        tab = self.tab
+        return reverse('rule', args=[tab.slug,
+                                     self.slug])

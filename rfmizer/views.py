@@ -9,6 +9,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, redirect, render, HttpResponseRedirect
 import hashlib
 from .models import *
+from django.forms.models import modelform_factory
+
 
 
 # Create your views here.
@@ -17,6 +19,16 @@ from .models import *
 def main(request):
     return render(request,
                   'index.html')
+
+
+# class GetTabMixin():
+#     tab = None
+#
+#     def get_tab(self):
+#         if self.tab is None:
+#             slug = self.kwargs['tab_slug'] or self.kwargs['slug']
+#             return ManageTable.objects.get(slug=slug)
+#
 
 
 class Register(CreateView):
@@ -131,6 +143,100 @@ class MyTables(LoginRequiredMixin, ListView):
 class ManageTab(LoginRequiredMixin, DetailView):
     template_name = 'personal/manage.html'
     model = ManageTable
+
+
+class ClientList(LoginRequiredMixin, ListView):
+    template_name = 'personal/client_list.html'
+    model = Person
+    paginate_by = 20
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        tab = ManageTable.objects.get(slug=self.kwargs.get('slug'))
+        context = super(ClientList, self).get_context_data()
+        context['tab'] = tab
+        context['obj_list'] = Person.objects.filter(tab=tab)
+        return context
+
+
+class ClientCard(LoginRequiredMixin, DetailView, UpdateView):
+    model = Person
+    template_name = 'personal/client_card.html'
+    form_class = ClientManage
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        tab = ManageTable.objects.get(slug=self.kwargs['slug_tab'])
+        client = Person.objects.get(slug=self.kwargs['slug'])
+        context = super(ClientCard, self).get_context_data()
+        context['tab'] = tab
+        context['object'] = client
+        context['obj_list'] = Deals.objects.filter(person=client)
+        return context
+
+
+class RulesList(LoginRequiredMixin, ListView):
+    model = Rules
+    template_name = 'personal/rules.html'
+
+    def get_queryset(self):
+        qs = super(RulesList, self).get_queryset()
+        return qs.filter(owner=self.request.user)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(RulesList, self).get_context_data()
+        context['tab'] = ManageTable.objects.get(
+            slug=self.kwargs['slug']
+        )
+        return context
+
+
+class NewRule(LoginRequiredMixin, CreateView):
+    model = Rules
+    template_name = 'personal/new_rule.html'
+    fields = ['name', 'from_to', 'message', 'on_off_rule']
+    widgets = {'on_off_rule': RadioSelect(attrs={'id': 'on_off'}),
+               'from_to': CheckboxSelectMultiple}
+
+    def get_context_data(self, **kwargs):
+        context = super(NewRule, self).get_context_data()
+        context['tab'] = ManageTable.objects.get(
+            slug=self.kwargs['slug']
+        )
+        return context
+
+    def get_form_class(self):
+        super(NewRule, self).get_form_class()
+        return modelform_factory(self.model,
+                                 fields=self.fields,
+                                 widgets=self.widgets)
+    
+    def form_valid(self, form):
+        owner = self.request.user
+        rule = form.save(commit=False)
+        rule.owner = owner
+        rule.tab = self.kwargs.
+        rule.save()
+        return super(NewRule, self).form_valid()
+
+
+class EditRule(LoginRequiredMixin, UpdateView):
+    model = Rules
+    template_name = 'personal/rule.html'
+    fields = ['name', 'from_to', 'message', 'on_off_rule']
+    widgets = {'on_off_rule': RadioSelect(attrs={'id': 'on_off'}),
+               'from_to': CheckboxSelectMultiple}
+
+    def get_form_class(self):
+        super(EditRule, self).get_form_class()
+        return modelform_factory(self.model,
+                                 fields=self.fields,
+                                 widgets=self.widgets)
+
+    def get_context_data(self, **kwargs):
+        context = super(EditRule, self).get_context_data()
+        context['tab'] = ManageTable.objects.get(
+            slug=self.kwargs['slug_tab']
+        )
+        return context
 
 
 class Delete(LoginRequiredMixin, DeleteView):
