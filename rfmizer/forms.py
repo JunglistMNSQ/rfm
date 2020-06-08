@@ -14,7 +14,7 @@ class UserRegistrationForm(ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = ['username', 'email']
 
     def clean_password2(self):
         cd = self.cleaned_data
@@ -89,7 +89,7 @@ class ParserForm(forms.Form):
                                   'должны повторяться')
 
 
-#
+
 # class RfmOptions(forms.ModelForm):
 #
 #     class Meta:
@@ -110,13 +110,13 @@ class ParserForm(forms.Form):
 #             'monetary_2': TextInput,
 #             'on_off': RadioSelect(attrs={'id': 'on_off'}),
 #         }
-#
-#
-class ClientManage(forms.ModelForm):
 
-    class Meta:
-        model = models.Person
-        fields = ['phone', 'active_client']
+
+# class ClientManage(forms.ModelForm):
+#
+#     class Meta:
+#         model = models.Person
+#         fields = ['phone', 'active_client']
 
 #
 # class Rule(forms.ModelForm):

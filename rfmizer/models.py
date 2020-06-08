@@ -41,7 +41,6 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class CsvFileHandler(csv.Sniffer):
-
     def __init__(self, path):
         super(CsvFileHandler, self).__init__()
         self.opened = open(path, 'r')
@@ -63,16 +62,7 @@ class CsvFileHandler(csv.Sniffer):
         return line
 
 
-
 class HandlerRawData:
-
-    # col0 = None
-    # col1 = None
-    # col2 = None
-    # col3 = None
-    # col4 = None
-    # order = []
-
     def __init__(self, obj):
         self.bound_obj = obj
         self.raw_data = []
@@ -198,11 +188,23 @@ class ManageTable(models.Model):
     def get_absolute_url(self):
         return reverse('manage_tab', args=[self.slug])
 
+    def recency_calc(self):
+        self.recency_1 = str(
+            self.recency_raw_1 * self.choice_rec_1
+        ) + 'day'
+        self.recency_2 = str(
+            self.recency_raw_2 * self.choice_rec_2
+        ) + 'day'
+        self.save()
+        return True
+
     def rfmizer(self):
-        if not self.recency_1:
-            return 'Установите настройки RFM.'
+        if not self.recency_1 or self.recency_2:
+            self.recency_calc()
+            if self.recency_1 == '0day' or self.recency_2 == '0day':
+                return 'Установите настройки RFM.'
         current_date = date.today()
-        list_client = Person.objects.filter(table=self)
+        list_client = Person.objects.filter(tab=self)
         for client in list_client:
             r = 100 + 100 * \
                 (current_date - client.last_deal < self.recency_1) + \
@@ -213,7 +215,7 @@ class ManageTable(models.Model):
                 1 * (client.pays > self.monetary_2)
             rfm = str(r + f + m)
             client.rfm_category_update(rfm)
-        return 'RFM успешно пересчитан'
+        return 'RFM успешно пересчитан.'
 
 
 class Person(models.Model):

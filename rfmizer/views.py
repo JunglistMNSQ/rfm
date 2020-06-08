@@ -37,6 +37,17 @@ class Register(CreateView):
     success_url = '/login/'
     form_class = UserRegistrationForm
 
+    def form_valid(self, form):
+        if form.clean_password2():
+            cd = form.cleaned_data
+            new_user = form.save(commit=False)
+            new_user.set_password(cd['password'])
+            new_user.save()
+            return HttpResponseRedirect(self.get_success_url())
+
+
+
+
 
 class Upload(LoginRequiredMixin, CreateView):
     template_name = 'personal/upload.html'
@@ -140,9 +151,23 @@ class MyTables(LoginRequiredMixin, ListView):
         return context
 
 
-class ManageTab(LoginRequiredMixin, DetailView):
+class ManageTab(LoginRequiredMixin, DetailView, UpdateView):
     template_name = 'personal/manage.html'
     model = ManageTable
+    fields = ['choice_rec_1', 'choice_rec_2',
+              'recency_raw_1', 'recency_raw_2',
+              'frequency_1', 'frequency_2',
+              'monetary_1', 'monetary_2',
+              'on_off'
+              ]
+    widgets = {
+        'recency_raw_1': TextInput,
+        'recency_raw_2': TextInput,
+        'frequency_1': TextInput,
+        'frequency_2': TextInput,
+        'monetary_1': TextInput,
+        'monetary_2': TextInput,
+        'on_off': RadioSelect(attrs={'id': 'on_off'})}
 
 
 class ClientList(LoginRequiredMixin, ListView):
@@ -161,7 +186,7 @@ class ClientList(LoginRequiredMixin, ListView):
 class ClientCard(LoginRequiredMixin, DetailView, UpdateView):
     model = Person
     template_name = 'personal/client_card.html'
-    form_class = ClientManage
+    fields = ['phone', 'active_client']
 
     def get_context_data(self, *, object_list=None, **kwargs):
         tab = ManageTable.objects.get(slug=self.kwargs['slug_tab'])
@@ -210,12 +235,13 @@ class NewRule(LoginRequiredMixin, CreateView):
                                  widgets=self.widgets)
     
     def form_valid(self, form):
+        tab = ManageTable.objects.get(slug=self.kwargs.get('slug'))
         owner = self.request.user
         rule = form.save(commit=False)
         rule.owner = owner
-        rule.tab = self.kwargs.
+        rule.tab = tab
         rule.save()
-        return super(NewRule, self).form_valid()
+        return super(NewRule, self).form_valid(form)
 
 
 class EditRule(LoginRequiredMixin, UpdateView):

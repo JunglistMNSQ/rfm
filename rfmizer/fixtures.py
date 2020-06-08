@@ -10,7 +10,7 @@ class FixturesMixin(TestCase):
         self.file = '/Users/vladimir/Documents/testdbsheet.csv'
         self.file_corrupt = '/Users/vladimir/Documents/' \
                             'corrupt_data_testsheet.csv'
-        self.user = User(username='TestUser')
+        self.user = User(username='TestUser', password='password')
         self.user.save()
         self.client.force_login(self.user)
         self.tab_exist = ManageTable(name='test',
@@ -34,3 +34,11 @@ class FixturesMixin(TestCase):
                           from_to='333233',
                           message='test message')
         self.rule.save()
+        self.rfm = {'choice_rec_1': 1,
+                    'choice_rec_2': 1,
+                    'recency_raw_1': 5,
+                    'recency_raw_2': 10,
+                    'frequency_1': 5,
+                    'frequency_2': 3,
+                    'monetary_1': 200,
+                    'monetary_2': 100}

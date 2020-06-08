@@ -6,10 +6,6 @@ from .views import *
 
 
 class TestRegister(FixturesMixin, TestCase):
-    def test_register_response(self):
-        response = self.client.get('/register/')
-        self.assertEqual(response.status_code, 200)
-
     def test_create_user(self):
         response = self.client.post('/register/',
                                     {'username': 'TestUser',
@@ -18,6 +14,15 @@ class TestRegister(FixturesMixin, TestCase):
                                      'password2': 'password'})
         user = User.objects.get_by_natural_key('TestUser')
         self.assertEqual(user.get_username(), 'TestUser')
+
+
+class TestLogin(FixturesMixin, TestCase):
+    def test_login(self):
+        response = self.client.post('/login/',
+                                    {'username': 'TestUser',
+                                     'password': 'password',},
+                                    follow=True)
+        self.assertEqual(response.redirect_chain, [('/log/', 302)])
 
 
 class TestUploadToParse(FixturesMixin, TestCase):
@@ -93,6 +98,22 @@ class TestMyTables(FixturesMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class TestManageTab(FixturesMixin, TestCase):
+    def setUp(self):
+        super(TestManageTab, self).setUp()
+        self.url = reverse('manage_tab', args=(self.tab_exist, ))
+
+    def test_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = self.rfm
+        response = self.client.post(self.url,
+                                    data)
+        self.assertEqual(response.status_code, 200)
+
+
 class TestDeleteTab(FixturesMixin, TestCase):
     def test_post(self):
         test_tab = ManageTable(owner=self.user, name='test_tab_del')
@@ -128,10 +149,9 @@ class TestClientCard(FixturesMixin, TestCase):
         session = self.client.session
         session.save()
         self.assertEqual(response.status_code, 200)
-        # response = self.client.post(url,
-        #                             {'active_client': False,
-        #                              'phone': new_client.phone.as_e164})
-        # self.assertEqual(new_client.active_client, False)
+        response = self.client.post(url,
+                                    {'phone': '+375291516065'})
+        self.assertEqual(new_client.phone.as_e164, '+375291516065')
 
 
 class TestRulesList(FixturesMixin, TestCase):
@@ -148,24 +168,33 @@ class TestNewRule(FixturesMixin, TestCase):
         session = self.client.session
         session.save()
         self.assertEqual(response.status_code, 200)
-        response = self.client.get(url,
-                                   {'name': 'test_rule',
-                                    'on_off_rule': True,
-                                    'from_to': ['333233', '233133'],
-                                    'message': 'test message'},
-                                   follow=True)
-        rule = Rules.objects.get(name='test_rule')
-        self.assertEqual(response.redirect_chain, [302, rule.slug])
-
-
-class TestEditRule(FixturesMixin, TestCase):
-    def test_create_rule(self):
-        url = reverse('rule', kwargs={'slug_tab': self.tab_exist.slug,
-                                      'slug': self.rule.slug})
-        response = self.client.get(url)
-        session = self.client.session
-        session.save()
-        self.assertEqual(response.status_code, 200)
         response = self.client.post(url,
-                                    {'on_off_rule': False})
-        # self.assertEqual(self.rule.on_off_rule, False)
+                                    {'name': 'test_rule_2',
+                                     'on_off_rule': False,
+                                     'from_to': ['333233', '233133'],
+                                     'message': 'test message'},
+                                    follow=True)
+        rule = Rules.objects.get(name='test_rule_2')
+        self.assertEqual(rule.on_off_rule, False)
+        self.assertEqual(response.redirect_chain,
+                         [('/my_tables/test/rules/test-rule-2', 302)])
+
+
+# class TestEditRule(FixturesMixin, TestCase):
+#     def test_edit_rule(self):
+#         url = reverse('rule', kwargs={'slug_tab': self.tab_exist.slug,
+#                                       'slug': self.rule.slug})
+#         response = self.client.get(url)
+#         session = self.client.session
+#         session.save()
+#         self.assertEqual(response.status_code, 200)
+#         response = self.client.post(url,
+#                                     {'on_off_rule': False,
+#                                      'name': 'test_rename',
+#                                      'from_to': ['222122', '212112'],
+#                                      'message': 'edited message'})
+#         print(self.rule)
+#         self.assertEqual(self.rule.on_off_rule, False)
+#         self.assertEqual(self.rule.name, 'test_rename')
+#         self.assertEqual(self.rule.from_to, ['222122', '212112'])
+#         self.assertEqual(self.rule.message, 'edited message')

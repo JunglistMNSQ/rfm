@@ -34,7 +34,6 @@ class TestCsvFileHandler(FixturesMixin, TestCase):
         self.assertEqual(line[0], 'Data')
 
 
-
 class TestHandlerRawData(FixturesMixin, TestCase):
     def setUp(self):
         super(TestHandlerRawData, self).setUp()
@@ -161,3 +160,24 @@ class TestManageTable(FixturesMixin, TestCase):
         self.assertEqual(obj4.slug.find(' '), -1)
         self.assertEqual(obj5.slug.find(' '), -1)
         self.assertEqual(obj6.slug.find(' '), -1)
+
+    def test_rfmizer(self):
+        res = self.tab_exist.rfmizer()
+        self.assertEqual(res, 'Установите настройки RFM.')
+        for key, value in self.rfm.items():
+            setattr(self.tab_exist, key, value)
+        self.tab_exist.save()
+        res = self.tab_exist.rfmizer()
+        self.assertEqual(res, 'RFM успешно пересчитан.')
+
+    def test_recency_calc(self):
+        data = self.rfm
+        tab = self.tab_exist
+        for key, value in data.items():
+            setattr(tab, key, value)
+        tab.save()
+        tab.recency_calc()
+        self.assertEqual(tab.recency_1, '5day')
+        self.assertEqual(tab.recency_2, '10day')
+
+
