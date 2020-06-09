@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block h1 %}Настройки и содержание таблицы {{ obj.name }}{% endblock %}
+{% block h1 %}Настройки и содержание таблицы {{ object.name }}{% endblock %}
 
 {% block content %}
     <p>
@@ -15,7 +15,6 @@
     С понедельника по пятницу в 10:00  по Минску приложение пересчитывает RFM для всех клиенто в активных таблицах.
     </p>
     <hr>
-    {% comment %}
     {% if msg %}<h2>{{ msg }}</h2>{% endif %}
     <form method="post">
 
@@ -59,13 +58,14 @@
     </form>
     <hr>
     <p>
-        <a href="{% url "rfmize" tab.slug %}" class="button">Пересчитать RFM клиентов</a>
+        {% comment %}
+        <a href="{% url "rfmize" object.slug %}" class="button">Пересчитать RFM клиентов</a>
+        {% endcomment %}
         <hr>
-        <a href="{% url "rules" tab.slug %}" class="button">Управление рассылкой</a>
+        <a href="{% url "rules" object.slug %}" class="button">Управление рассылкой</a>
     </p>
-    <a href="{% url "client_list" odj.slug %}" class="button">Посмотреть список клиентов</a>
+    <a href="{% url "client_list" object.slug %}" class="button">Посмотреть список клиентов</a>
 
-    {% endcomment %}
 
 
 {% endblock %}

@@ -127,6 +127,8 @@ class TestManageTab(FixturesMixin, TestCase):
         response = self.client.post(self.url,
                                     data)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.tab_exist.monetary_1, data['monetary_1'])
+        self.assertEqual(self.tab_exist.frequency_1, data['frequency_1'])
 
 
 class TestDeleteTab(FixturesMixin, TestCase):

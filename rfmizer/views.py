@@ -150,7 +150,7 @@ class MyTables(LoginRequiredMixin, ListView):
         return context
 
 
-class ManageTab(LoginRequiredMixin, DetailView, UpdateView):
+class ManageTab(LoginRequiredMixin, UpdateView, DetailView):
     template_name = 'personal/manage.html'
     model = ManageTable
     fields = ['choice_rec_1', 'choice_rec_2',
@@ -167,6 +167,12 @@ class ManageTab(LoginRequiredMixin, DetailView, UpdateView):
         'monetary_1': TextInput,
         'monetary_2': TextInput,
         'on_off': RadioSelect(attrs={'id': 'on_off'})}
+
+    def get_form(self, form_class=None):
+        super(ManageTab, self).get_form()
+        return modelform_factory(self.model,
+                                 fields=self.fields,
+                                 widgets=self.widgets,)
 
 
 class ClientList(LoginRequiredMixin, ListView):
