@@ -6,14 +6,29 @@ from .views import *
 
 
 class TestRegister(FixturesMixin, TestCase):
-    def test_create_user(self):
+    def test_create_and_login(self):
         response = self.client.post('/register/',
-                                    {'username': 'TestUser',
+                                    {'username': 'TestUser1',
                                      'email': 'test@test.com',
                                      'password': 'password',
                                      'password2': 'password'})
-        user = User.objects.get_by_natural_key('TestUser')
-        self.assertEqual(user.get_username(), 'TestUser')
+        session = self.client.session
+        session.save()
+        user = User.objects.get_by_natural_key('TestUser1')
+        self.assertEqual(user.get_username(), 'TestUser1')
+        response = self.client.post('/login/',
+                                    {'username': 'TestUser1',
+                                     'password': 'password'},
+                                    follow=True)
+        self.assertEqual(response.redirect_chain, [('/log/', 302)])
+
+    def test_create_with_different_passwords(self):
+        response = self.client.post('/register/',
+                                    {'username': 'TestUser1',
+                                     'email': 'test@test.com',
+                                     'password': 'password1',
+                                     'password2': 'password2'})
+        self.assertRaisesMessage(response, 'Пароли не совпадают')
 
 
 class TestLogin(FixturesMixin, TestCase):

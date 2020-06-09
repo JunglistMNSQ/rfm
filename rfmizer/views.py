@@ -32,7 +32,6 @@ def main(request):
 
 
 class Register(CreateView):
-    models = User
     template_name = 'registration/registration.html'
     success_url = '/login/'
     form_class = UserRegistrationForm
@@ -40,10 +39,10 @@ class Register(CreateView):
     def form_valid(self, form):
         if form.clean_password2():
             cd = form.cleaned_data
-            new_user = form.save(commit=False)
+            new_user = form.save()
             new_user.set_password(cd['password'])
             new_user.save()
-            return HttpResponseRedirect(self.get_success_url())
+            return HttpResponseRedirect(self.success_url)
 
 
 
