@@ -142,6 +142,27 @@ class TestUserFiles(FixturesMixin, TestCase):
 
 
 class TestManageTable(FixturesMixin, TestCase):
+    def setUp(self):
+        super(TestManageTable, self).setUp()
+        self.clients = [
+            {'name': 'test1',
+             'phone': '+375291516665',
+             'date': '02.06.2018',
+             'good': 'testt',
+             'pay': 60,
+             'owner': self.user,
+             'tab': self.tab_exist},
+            {'name': 'test2',
+             'phone': '+375291616665',
+             'date': '02.06.2016',
+             'good': 'ttestt',
+             'pay': 40,
+             'owner': self.user,
+             'tab': self.tab_exist}
+        ]
+        for client in self.clients:
+            Person.get_new_line(client)
+
     def test_save_with_work_slug(self):
         obj1 = ManageTable(name='Test1', owner=self.user)
         obj2 = ManageTable(name='Test1', owner=self.user)
@@ -167,8 +188,12 @@ class TestManageTable(FixturesMixin, TestCase):
         for key, value in self.rfm.items():
             setattr(self.tab_exist, key, value)
         self.tab_exist.save()
+        self.tab_exist.recency_calc()
         res = self.tab_exist.rfmizer()
         self.assertEqual(res, 'RFM успешно пересчитан.')
+        clients = Person.objects.filter(tab=self.tab_exist)
+        for client in clients:
+            self.assertNotEqual(client.rfm_category, '000')
 
     def test_recency_calc(self):
         data = self.rfm
@@ -177,7 +202,7 @@ class TestManageTable(FixturesMixin, TestCase):
             setattr(tab, key, value)
         tab.save()
         tab.recency_calc()
-        self.assertEqual(tab.recency_1, '5day')
-        self.assertEqual(tab.recency_2, '10day')
+        self.assertTrue(tab.recency_1,)
+        self.assertTrue(tab.recency_2,)
 
 

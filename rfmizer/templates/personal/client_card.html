@@ -18,13 +18,13 @@
             </tr>
             <tr>
                 <td>{{ object.name }}</td>
-                <td>{{ form.phone }}</td>
+                <td width="16%">{{ form.phone }}</td>
                 <td>{{ object.last_deal }}</td>
                 <td>{{ object.pays }}</td>
                 <td>{{ object.rfm_category }}</td>
                 <td>{{ object.last_sent }}</td>
-                <td>{{ form.active_client }}</td>
-                <td><input type="submit" value="Сохранить" class="button primary fit"></td>
+                <td width="12%">{{ form.active_client }}</td>
+                <td width="8%"><input type="submit" value="Сохранить" class="button primary fit"></td>
             </tr>
         </table>
         {% if form.errors %}{{ form.errors }}{% endif %}
@@ -34,8 +34,25 @@
 <p><a href="{% url "client_list" tab.slug %}" class="button primary fit">Вернуться к списку клиентов</a>
     <hr>
 </p>
+    <table class="alt">
+        <tr>
+            <td>Номер сделки</td>
+            <td>Дата</td>
+            <td>Товар / Услуга</td>
+            <td>Оплата</td>
+        </tr>
     {% for deal in obj_list %}
-        {{ deal }}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ deal.date }}</td>
+            <td>{{ deal.good }}</td>
+            <td>{{ deal.pay }}</td>
+        </tr>
     {% endfor %}
-
+        <tr>
+            <td colspan="2" align="right">Итого:</td>
+            <td>Количество сделок: {{ object.deal_count }}</td>
+            <td>Сумма оплат: {{ object.pays }}</td>
+        </tr>
+    </table>
 {% endblock %}

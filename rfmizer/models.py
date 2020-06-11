@@ -1,6 +1,6 @@
 import csv
 import re
-from datetime import date
+from datetime import date, timedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -189,33 +189,31 @@ class ManageTable(models.Model):
         return reverse('manage_tab', args=[self.slug])
 
     def recency_calc(self):
-        self.recency_1 = str(
-            self.recency_raw_1 * self.choice_rec_1
-        ) + 'day'
-        self.recency_2 = str(
-            self.recency_raw_2 * self.choice_rec_2
-        ) + 'day'
+        self.recency_1 = timedelta(
+            days=(self.recency_raw_1 * self.choice_rec_1)
+        )
+        self.recency_2 = timedelta(
+            days=(self.recency_raw_2 * self.choice_rec_2)
+        )
         self.save()
         return True
 
     def rfmizer(self):
-        if not self.recency_1 or self.recency_2:
-            self.recency_calc()
-            if self.recency_1 == '0day' or self.recency_2 == '0day':
-                return 'Установите настройки RFM.'
-        current_date = date.today()
-        list_client = Person.objects.filter(tab=self)
-        for client in list_client:
-            r = 100 + 100 * \
-                (current_date - client.last_deal < self.recency_1) + \
-                100 * (current_date - client.last_deal < self.recency_2)
-            f = 10 + 10 * (client.deal_count > self.frequency_1) + \
-                10 * (client.deal_count > self.frequency_2)
-            m = 1 + 1 * (client.pays > self.monetary_1) + \
-                1 * (client.pays > self.monetary_2)
-            rfm = str(r + f + m)
-            client.rfm_category_update(rfm)
-        return 'RFM успешно пересчитан.'
+        if self.recency_1 and self.recency_2:
+            current_date = date.today()
+            list_client = Person.objects.filter(tab=self)
+            for client in list_client:
+                r = 100 + 100 * \
+                    ((current_date - client.last_deal) < self.recency_1) + \
+                    100 * ((current_date - client.last_deal) < self.recency_2)
+                f = 10 + 10 * (client.deal_count > self.frequency_1) + \
+                    10 * (client.deal_count > self.frequency_2)
+                m = 1 + 1 * (client.pays > self.monetary_1) + \
+                    1 * (client.pays > self.monetary_2)
+                rfm = str(r + f + m)
+                client.rfm_category_update(rfm)
+            return 'RFM успешно пересчитан.'
+        return 'Установите настройки RFM.'
 
 
 class Person(models.Model):

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
-from .models import ManageTable, Rules
+from .models import ManageTable, Rules, Person
 
 
 class FixturesMixin(TestCase):
@@ -36,9 +36,10 @@ class FixturesMixin(TestCase):
         self.rule.save()
         self.rfm = {'choice_rec_1': 1,
                     'choice_rec_2': 1,
-                    'recency_raw_1': 5,
-                    'recency_raw_2': 10,
-                    'frequency_1': 5,
-                    'frequency_2': 3,
-                    'monetary_1': 200,
-                    'monetary_2': 100}
+                    'recency_raw_1': 10,
+                    'recency_raw_2': 5,
+                    'frequency_1': 3,
+                    'frequency_2': 5,
+                    'monetary_1': 100,
+                    'monetary_2': 200,
+                    'on_off': True}

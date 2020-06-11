@@ -23,7 +23,7 @@
 
              {% for radio in form.on_off_rule %}
                 <div class="col-6 col-12-small" style="bottom: auto">
-                    {{ radio }}
+                    {{ radio.tag }}
                 <label for="on_off_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
                 </div>
             {% endfor %}

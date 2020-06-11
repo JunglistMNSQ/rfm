@@ -150,15 +150,16 @@ class MyTables(LoginRequiredMixin, ListView):
         return context
 
 
-class ManageTab(LoginRequiredMixin, UpdateView, DetailView):
-    template_name = 'personal/manage.html'
+class ManageTab(LoginRequiredMixin, UpdateView):
     model = ManageTable
-    fields = ['choice_rec_1', 'choice_rec_2',
-              'recency_raw_1', 'recency_raw_2',
-              'frequency_1', 'frequency_2',
-              'monetary_1', 'monetary_2',
-              'on_off'
-              ]
+    template_name = 'personal/manage.html'
+    fields = [
+        'choice_rec_1', 'choice_rec_2',
+        'recency_raw_1', 'recency_raw_2',
+        'frequency_1', 'frequency_2',
+        'monetary_1', 'monetary_2',
+        'on_off'
+    ]
     widgets = {
         'recency_raw_1': TextInput,
         'recency_raw_2': TextInput,
@@ -166,14 +167,29 @@ class ManageTab(LoginRequiredMixin, UpdateView, DetailView):
         'frequency_2': TextInput,
         'monetary_1': TextInput,
         'monetary_2': TextInput,
-        'on_off': RadioSelect(attrs={'id': 'on_off'})}
+        'on_off': RadioSelect(attrs={'id': 'on_off'})
+    }
 
-    def get_form(self, form_class=None):
-        super(ManageTab, self).get_form()
+    def get_form_class(self):
         return modelform_factory(self.model,
                                  fields=self.fields,
                                  widgets=self.widgets,)
+    
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.recency_calc()
+        self.request.session['msg'] = self.object.rfmizer()
+        return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super(ManageTab, self).get_context_data()
+        try:
+            msg = self.request.session.pop('msg')
+        except KeyError:
+            return context
+        context['msg'] = msg
+        return context
+        
 
 class ClientList(LoginRequiredMixin, ListView):
     template_name = 'personal/client_list.html'
@@ -234,7 +250,7 @@ class NewRule(LoginRequiredMixin, CreateView):
         return context
 
     def get_form_class(self):
-        super(NewRule, self).get_form_class()
+        # super(NewRule, self).get_form_class()
         return modelform_factory(self.model,
                                  fields=self.fields,
                                  widgets=self.widgets)
@@ -257,7 +273,7 @@ class EditRule(LoginRequiredMixin, UpdateView):
                'from_to': CheckboxSelectMultiple}
 
     def get_form_class(self):
-        super(EditRule, self).get_form_class()
+        # super(EditRule, self).get_form_class()
         return modelform_factory(self.model,
                                  fields=self.fields,
                                  widgets=self.widgets)
