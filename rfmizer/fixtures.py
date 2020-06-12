@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
-from .models import ManageTable, Rules, Person
+from .models import *
 
 
 class FixturesMixin(TestCase):
@@ -12,6 +12,11 @@ class FixturesMixin(TestCase):
                             'corrupt_data_testsheet.csv'
         self.user = User(username='TestUser', password='password')
         self.user.save()
+        self.user_1 = User(username='TestUser_1', password='password')
+        self.user_1.save()
+        self.user_2 = User(username='TestUser_2', password='password')
+        self.user_2.is_active = False
+        self.user_2.save()
         self.client.force_login(self.user)
         self.tab_exist = ManageTable(name='test',
                                      owner=self.user)
@@ -43,3 +48,16 @@ class FixturesMixin(TestCase):
                     'monetary_1': 100,
                     'monetary_2': 200,
                     'on_off': True}
+        self.order = ['date', 'name', 'phone', 'good', 'pay']
+        self.tab_exist_1 = ManageTable(name='test_test',
+                                       owner=self.user)
+        for key, value in self.rfm.items():
+            setattr(self.tab_exist_1, key, value)
+        self.tab_exist_1.recency_calc()
+        self.tab_exist_1.save()
+        self.f = CsvFileHandler(self.file)
+        self.p = HandlerRawData(self.f)
+        self.p.order = self.order
+        self.p.owner = self.user
+        self.p.tab = self.tab_exist_1
+        self.p.parse()

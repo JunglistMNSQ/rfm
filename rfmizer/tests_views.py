@@ -108,9 +108,10 @@ class TestUploadToParse(FixturesMixin, TestCase):
 class TestMyTables(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/my_tables/')
-        tabs_on_page = response.context['list_tab']
-        self.assertQuerysetEqual(tabs_on_page,
-                                 [f'<ManageTable: {self.tab_exist}>'])
+        qs = response.context['list_tab']
+        self.assertQuerysetEqual(list(qs),
+                                 [f'<ManageTable: {self.tab_exist}>',
+                                  f'<ManageTable: {self.tab_exist_1}>'])
         self.assertEqual(response.status_code, 200)
 
 

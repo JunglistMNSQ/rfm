@@ -39,7 +39,7 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         super(TestHandlerRawData, self).setUp()
         self.obj = CsvFileHandler(self.file)
         self.parser = HandlerRawData(self.obj)
-        self.parser.order = ['date', 'name', 'phone', 'good', 'pay']
+        self.parser.order = self.order
 
     def test_init_with_object(self):
         bound = self.parser.bound_obj
