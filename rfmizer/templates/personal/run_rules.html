@@ -1,6 +1,6 @@
 {% extends "generic.html" %}
 
-{% block h1 %}{% if msg %}{{ msg }}{% else %}Правила рассылки таблицы {{ tab }}{% endif %}{% endblock %}
+{% block h1 %}{% if msg %}{{ msg }}{% else %}Правила рассылки таблицы {{ tab.name }}{% endif %}{% endblock %}
 
 {% block content %}
     {% if rules %}

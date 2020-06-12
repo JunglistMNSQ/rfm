@@ -2,7 +2,7 @@ import csv
 import re
 from datetime import date, timedelta
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -69,6 +69,7 @@ class HandlerRawData:
         self.not_condition_data = []
         self.tab = None
         self.owner = None
+        self.order = None
 
     def take_line(self):
         line = self.bound_obj.get_line()
@@ -87,7 +88,6 @@ class HandlerRawData:
 
     def parse(self):
         self.take_lines()
-        # order = self.get_col_order()
         count = 0
         for line in self.raw_data:
             count += 1
@@ -107,18 +107,6 @@ class HandlerRawData:
         else:
             return False
 
-    def get_col_order(self):
-        order = []
-        col = 0
-        while True:
-            try:
-                hasattr(self, 'col' + str(col))
-                order.append(getattr(self, 'col' + str(col)))
-                col += 1
-            except AttributeError:
-                break
-        return order
-
 
 class UserFiles(models.Model):
     name = models.CharField(max_length=100)
@@ -128,9 +116,6 @@ class UserFiles(models.Model):
                               on_delete=models.CASCADE,)
 
     object = models.Manager()
-
-    # def user_directory_path(instance, filename):
-    #     return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 
 class ManageTable(models.Model):
@@ -176,7 +161,7 @@ class ManageTable(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return self.name
+        return f'Таблица {self.name}, создана {self.create_date:%d.%m.%y}.'
 
     def __unicode__(self):
         return self.name

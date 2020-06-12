@@ -194,6 +194,7 @@ class TestManageTable(FixturesMixin, TestCase):
         clients = Person.objects.filter(tab=self.tab_exist)
         for client in clients:
             self.assertNotEqual(client.rfm_category, '000')
+            self.assertNotEqual(client.rfm_move, '000000')
 
     def test_recency_calc(self):
         data = self.rfm

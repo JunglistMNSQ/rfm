@@ -109,14 +109,15 @@ class TestMyTables(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/my_tables/')
         tabs_on_page = response.context['list_tab']
-        self.assertQuerysetEqual(tabs_on_page, ['<ManageTable: test>'])
+        self.assertQuerysetEqual(tabs_on_page,
+                                 [f'<ManageTable: {self.tab_exist}>'])
         self.assertEqual(response.status_code, 200)
 
 
 class TestManageTab(FixturesMixin, TestCase):
     def setUp(self):
         super(TestManageTab, self).setUp()
-        self.url = reverse('manage_tab', args=(self.tab_exist, ))
+        self.url = reverse('manage_tab', args=(self.tab_exist.slug, ))
 
     def test_get_post(self):
         response = self.client.get(self.url)

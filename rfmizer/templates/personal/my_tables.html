@@ -7,9 +7,8 @@
     <table class="alt" width="100%">
         {% for tab in list_tab %}
             <tr>
-                <td>Таблица <b>{{ tab }}</b></td>
-                <td>создана {{ tab.create_date }}</td>
-                <td>{{ tab.get_on_off_display }}</td>
+                <td align="center"><b>{{ tab }}</b></td>
+                <td align="center">{{ tab.get_on_off_display }}</td>
                 <td><a href="{{ tab.get_absolute_url }}" class="button primary fit">Управлять таблицей</a></td>
                 <td><a href="{% url "delete" tab.slug %}" class="button primary fit">Удалить</a></td>
             </tr>

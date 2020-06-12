@@ -1,34 +1,31 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
-from django.shortcuts import render
 from django.views.generic import *
 from .forms import *
-from django.contrib.auth import authenticate, login
-from django.core.files.uploadedfile import TemporaryUploadedFile as Tf
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import get_object_or_404, redirect, render, HttpResponseRedirect
-import hashlib
+from django.shortcuts import redirect, render, HttpResponseRedirect
+# import hashlib
 from .models import *
 from django.forms.models import modelform_factory
-
 
 
 # Create your views here.
 
 
+class GetMyContextMixin:
+    def get_tab(self):
+        slug = self.kwargs.get('slug_tab') or self.kwargs.get('slug')
+        return ManageTable.objects.get(slug=slug)
+
+    def get_message(self):
+        try:
+            msg = self.request.session.pop('msg')
+        except KeyError:
+            return None
+        return msg
+
+
 def main(request):
     return render(request,
                   'index.html')
-
-
-# class GetTabMixin():
-#     tab = None
-#
-#     def get_tab(self):
-#         if self.tab is None:
-#             slug = self.kwargs['tab_slug'] or self.kwargs['slug']
-#             return ManageTable.objects.get(slug=slug)
-#
 
 
 class Register(CreateView):
@@ -43,9 +40,6 @@ class Register(CreateView):
             new_user.set_password(cd['password'])
             new_user.save()
             return HttpResponseRedirect(self.success_url)
-
-
-
 
 
 class Upload(LoginRequiredMixin, CreateView):
@@ -102,7 +96,6 @@ class Parse(LoginRequiredMixin, FormView):
         while True:
             try:
                 order.append(cd['col' + str(col)])
-                # setattr(parser, 'col' + str(col), value)
                 col += 1
             except KeyError:
                 break
@@ -123,7 +116,7 @@ class Parse(LoginRequiredMixin, FormView):
         return reverse('manage_tab', kwargs={'slug': tab.slug})
 
 
-class CorruptData(LoginRequiredMixin, ListView):
+class CorruptData(LoginRequiredMixin, GetMyContextMixin, ListView):
     template_name = 'personal/corrupt_data.html'
     paginate_by = 20
 
@@ -150,7 +143,7 @@ class MyTables(LoginRequiredMixin, ListView):
         return context
 
 
-class ManageTab(LoginRequiredMixin, UpdateView):
+class ManageTab(LoginRequiredMixin, GetMyContextMixin, UpdateView):
     model = ManageTable
     template_name = 'personal/manage.html'
     fields = [
@@ -183,43 +176,39 @@ class ManageTab(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ManageTab, self).get_context_data()
-        try:
-            msg = self.request.session.pop('msg')
-        except KeyError:
-            return context
-        context['msg'] = msg
+        context['msg'] = self.get_message()
         return context
         
 
-class ClientList(LoginRequiredMixin, ListView):
+class ClientList(LoginRequiredMixin, GetMyContextMixin, ListView):
     template_name = 'personal/client_list.html'
     model = Person
     paginate_by = 20
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        tab = ManageTable.objects.get(slug=self.kwargs.get('slug'))
         context = super(ClientList, self).get_context_data()
+        tab = self.get_tab()
         context['tab'] = tab
         context['obj_list'] = Person.objects.filter(tab=tab)
         return context
 
 
-class ClientCard(LoginRequiredMixin, DetailView, UpdateView):
+class ClientCard(LoginRequiredMixin, GetMyContextMixin, DetailView, UpdateView):
     model = Person
     template_name = 'personal/client_card.html'
     fields = ['phone', 'active_client']
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        tab = ManageTable.objects.get(slug=self.kwargs['slug_tab'])
+        # tab = ManageTable.objects.get(slug=self.kwargs['slug_tab'])
         client = Person.objects.get(slug=self.kwargs['slug'])
         context = super(ClientCard, self).get_context_data()
-        context['tab'] = tab
+        context['tab'] = self.get_tab()
         context['object'] = client
         context['obj_list'] = Deals.objects.filter(person=client)
         return context
 
 
-class RulesList(LoginRequiredMixin, ListView):
+class RulesList(LoginRequiredMixin, GetMyContextMixin, ListView):
     model = Rules
     template_name = 'personal/rules.html'
 
@@ -229,13 +218,11 @@ class RulesList(LoginRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RulesList, self).get_context_data()
-        context['tab'] = ManageTable.objects.get(
-            slug=self.kwargs['slug']
-        )
+        context['tab'] = self.get_tab()
         return context
 
 
-class NewRule(LoginRequiredMixin, CreateView):
+class NewRule(LoginRequiredMixin, GetMyContextMixin, CreateView):
     model = Rules
     template_name = 'personal/new_rule.html'
     fields = ['name', 'from_to', 'message', 'on_off_rule']
@@ -244,9 +231,7 @@ class NewRule(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(NewRule, self).get_context_data()
-        context['tab'] = ManageTable.objects.get(
-            slug=self.kwargs['slug']
-        )
+        context['tab'] = self.get_tab()
         return context
 
     def get_form_class(self):
@@ -256,7 +241,7 @@ class NewRule(LoginRequiredMixin, CreateView):
                                  widgets=self.widgets)
     
     def form_valid(self, form):
-        tab = ManageTable.objects.get(slug=self.kwargs.get('slug'))
+        tab = self.get_tab()
         owner = self.request.user
         rule = form.save(commit=False)
         rule.owner = owner

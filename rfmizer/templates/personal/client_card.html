@@ -1,6 +1,6 @@
 {% extends "generic.html" %}
 
-{% block h1 %}Карточка клиента {{ object.name }} # {{ object.id }} {% if msg %}{{ msg }}{% endif %}{% endblock %}
+{% block h1 %}Карточка клиента {{ object.name }}{% if msg %}{{ msg }}{% endif %}{% endblock %}
 
 {% block content %}
     <form method="post">
