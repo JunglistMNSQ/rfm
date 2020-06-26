@@ -42,6 +42,15 @@ class Register(CreateView):
             return HttpResponseRedirect(self.success_url)
 
 
+class Profile(LoginRequiredMixin, UpdateView):
+    template_name = 'personal/profile.html'
+    model = User
+    form_class = ProfileForm
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
 class Upload(LoginRequiredMixin, CreateView):
     template_name = 'personal/upload.html'
     success_url = '/parse/'

@@ -230,3 +230,8 @@ class TestNewRule(FixturesMixin, TestCase):
 #         self.assertEqual(self.rule.from_to, ['222122', '212112'])
 #
 #         self.assertEqual(self.rule.message, 'edited message')
+
+class TestProfile(FixturesMixin, TestCase):
+    def test_get(self):
+        response = self.client.get('/personal/')
+        self.assertEqual(response.status_code, 200)

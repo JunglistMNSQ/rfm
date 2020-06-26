@@ -1,5 +1,6 @@
 from .models import *
 
+
 class GetItems:
     @classmethod
     def get_active_users(cls):

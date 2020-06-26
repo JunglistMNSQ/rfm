@@ -23,6 +23,14 @@ class UserRegistrationForm(ModelForm):
         return cd['password2']
 
 
+class ProfileForm(ModelForm):
+
+    class Meta:
+        model = models.Profile
+        fields = ['sms_login', 'sms_pass']
+        widgets = {'sms_pass': forms.PasswordInput}
+
+
 class CreateOrUpdateTable(ModelForm):
 
     choice_exist_tab = forms.ModelChoiceField(

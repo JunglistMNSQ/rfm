@@ -4,9 +4,8 @@ from . import views
 
 urlpatterns = [
     path('', views.main, name='main'),
-    # path('login/', views.user_login, name='login'),
     path('register/', views.Register.as_view(), name='register'),
-    # path('personal/', views.personal_area, name='personal'),
+    path('personal/', views.Profile.as_view(), name='profile'),
     path('upload/', views.Upload.as_view(), name='upload'),
     path('parse/', views.Parse.as_view(), name='parse'),
     path('corrupt_data/', views.CorruptData.as_view(), name='corrupt_data'),
@@ -18,7 +17,6 @@ urlpatterns = [
          views.ClientCard.as_view(),
          name='client_card'),
     path('my_tables/<slug>/delete/', views.Delete.as_view(), name='delete'),
-    # path('my_tables/<slug>/rfmize/', views.rfmize_tab, name='rfmize'),
     path('my_tables/<slug>/rules/', views.RulesList.as_view(), name='rules'),
     path('my_tables/<slug>/rules/new/', views.NewRule.as_view(),
          name='new_rule'),
