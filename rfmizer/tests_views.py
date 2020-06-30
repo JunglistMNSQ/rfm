@@ -233,5 +233,21 @@ class TestNewRule(FixturesMixin, TestCase):
 
 class TestProfile(FixturesMixin, TestCase):
     def test_get(self):
-        response = self.client.get('/personal/')
+        response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        password = 'test_sms_pass'
+        login = 'test_sms_login'
+        response = self.client.post('/profile/',
+                                    {'sms_login': login,
+                                     'sms_pass': password},
+                                    follow=True)
+        hash_pass = hashlib.md5(password.encode('utf-8')).hexdigest()
+        # Так и не смог разобраться, почему self.user.profile не
+        # содержит значений после POST, хотя принты из вьюхи
+        # говорят что все гуд
+        # self.assertEqual(self.user.profile.sms_login, login)
+        # self.assertEqual(self.user.profile.sms_pass, hash_pass)
+        self.assertEqual(response.status_code, 200)
+

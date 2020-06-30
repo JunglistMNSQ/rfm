@@ -100,7 +100,7 @@ class HandlerRawData:
                 prep_line['owner'] = self.owner
                 prep_line['tab'] = self.tab
                 Person.get_new_line(prep_line)
-            except BaseException:
+            except Exception:
                 self.not_condition_data.append((count, line))
         if self.not_condition_data:
             return self.not_condition_data
