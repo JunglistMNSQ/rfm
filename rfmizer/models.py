@@ -21,7 +21,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     sms_login = models.CharField(blank=True, max_length=50)
     sms_pass = models.TextField(blank=True)
-    balance = models.IntegerField(blank=True, default=0)
+    balance = models.IntegerField(blank=True, null=True, default=0)
     notification_msg = models.TextField(blank=True)
 
     def notification(self, msg):

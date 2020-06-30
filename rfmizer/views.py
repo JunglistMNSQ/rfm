@@ -3,6 +3,7 @@ from django.views.generic import *
 from .forms import *
 from django.shortcuts import redirect, render, HttpResponseRedirect
 import hashlib
+from .rocket_sms  import RocketSMS
 from .models import *
 from django.forms.models import modelform_factory
 
@@ -42,7 +43,7 @@ class Register(CreateView):
             return HttpResponseRedirect(self.success_url)
 
 
-class Profile(LoginRequiredMixin, UpdateView):
+class Profile(LoginRequiredMixin, GetMyContextMixin, UpdateView):
     template_name = 'personal/profile.html'
     model = User
     form_class = ProfileForm
@@ -51,19 +52,25 @@ class Profile(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user.profile
 
+    def get_context_data(self, **kwargs):
+        context = super(Profile, self).get_context_data()
+        context['msg'] = self.get_message()
+        return context
+
     def form_valid(self, form):
-        # self.object.profile = form.save(commit=False)
         cd = form.cleaned_data
         self.object.sms_login = cd['sms_login']
         self.object.sms_pass = hashlib.md5(
             cd['sms_pass'].encode('utf-8')
         ).hexdigest()
-        # balance = sms.check_balance(cd['sms_login'],
-        #                             cd['sms_pass'])
-        # profile.balance = balance[1]
+        balance = RocketSMS.check_balance(cd['sms_login'],
+                                          self.object.sms_pass)
+        self.object.balance = balance[1]
         self.object.save()
+        self.request.session['msg'] = balance[2]
         # В test_views сравнения не получают значения из модели Profile
         # Здесь принты показывают что все работает.
+        # print(self.object.balance)
         # print(self.object.sms_pass)
         # print(self.object.sms_login)
         return HttpResponseRedirect(self.success_url)

@@ -15,7 +15,11 @@
             <tr>
                 <td>{{ form.sms_login }}</td>
                 <td>{{ form.sms_pass }}</td>
-                <td>{{ user.profile.balance }}</td>
+                <td>{% if user.profile.balance == None %}
+                        Нет связи с сервисом
+                    {% else %}
+                        {{ user.profile.balance }}
+                    {% endif %}</td>
             </tr>
         </table>
         {% csrf_token %}

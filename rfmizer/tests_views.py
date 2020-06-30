@@ -1,6 +1,8 @@
 from django.test import TestCase
 from .fixtures import FixturesMixin
 from .views import *
+from unittest import mock
+
 
 # Create your tests here.
 
@@ -171,7 +173,7 @@ class TestClientList(FixturesMixin, TestCase):
 
 
 class TestClientCard(FixturesMixin, TestCase):
-    def test_get_post(self):
+    def test_get(self):
         new_client = Person.get_new_line(self.data)
         url = reverse('client_card',
                       kwargs={'slug_tab': self.tab_exist.slug,
@@ -180,9 +182,6 @@ class TestClientCard(FixturesMixin, TestCase):
         session = self.client.session
         session.save()
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(url,
-                                    {'phone': '+375291516065'})
-        self.assertEqual(new_client.phone.as_e164, '+375291516065')
 
 
 class TestRulesList(FixturesMixin, TestCase):
@@ -236,7 +235,9 @@ class TestProfile(FixturesMixin, TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-    def test_post(self):
+    @mock.patch('rfmizer.rocket_sms.RocketSMS.check_balance',
+                return_value=[True, 25, None])
+    def test_post(self, balance_mock):
         password = 'test_sms_pass'
         login = 'test_sms_login'
         response = self.client.post('/profile/',
@@ -249,5 +250,7 @@ class TestProfile(FixturesMixin, TestCase):
         # говорят что все гуд
         # self.assertEqual(self.user.profile.sms_login, login)
         # self.assertEqual(self.user.profile.sms_pass, hash_pass)
+        # self.assertEqual(self.user.profile.balance, 25)
         self.assertEqual(response.status_code, 200)
+        balance_mock.assert_called_once()
 
