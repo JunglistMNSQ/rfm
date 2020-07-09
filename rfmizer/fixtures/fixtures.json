@@ -238,7 +238,7 @@
     },
     {
         "fields": {
-            "from_to": "331231,321221",
+            "from_to": [331231,321221],
             "message": "Test message {name}",
             "name": "test rule #2",
             "on_off_rule": true,
@@ -251,7 +251,7 @@
     },
     {
         "fields": {
-            "from_to": "333233,332232",
+            "from_to": [333233],
             "message": "test message",
             "name": "test_rule",
             "on_off_rule": true,

@@ -44,16 +44,13 @@ class ActionRFMizer(GetItems):
     @classmethod
     def run_rules(cls):
         rules_list = cls.get_rules()
-        print(rules_list)
         for rule in rules_list:
-            owner, tab, rfm_move = rule.owner, rule.tab, rule.from_to
-            message = rule.message
-            print(owner, tab, rfm_move)
+            owner,  message = rule.owner, rule.message
             login, pass_hash = (
                 owner.profile.sms_login, owner.profile.sms_pass
             )
-            clients = cls.get_clients(owner, tab, rfm_move)
-            print(rule, rule.from_to, clients)
+            clients = cls.get_clients(owner, rule.tab, rule.get_from_to_list())
+            print(clients, rule.get_from_to_list(), rule.from_to)
             try:
                 for client in clients:
                     message = re.sub(r'\{name\}', client.name, message)

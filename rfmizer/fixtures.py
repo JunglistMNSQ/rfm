@@ -46,5 +46,10 @@ class FixturesMixin(TestCase):
         self.url = reverse(
             'new_rule', kwargs={'slug': self.tab_exist.slug}
         )
+        self.client.post(self.url,
+                         {'name': 'test_rule_4',
+                          'on_off_rule': False,
+                          'from_to': ['333233', '233133'],
+                          'message': 'test message'})
 
 

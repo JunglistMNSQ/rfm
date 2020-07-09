@@ -327,8 +327,8 @@ class Deals(models.Model):
 
 
 class Rules(models.Model):
-    RFM = [(str(int(a+b+c)) + str(int(a+b+c)-100),
-            a+b+c + ' => ' + str(int(a+b+c)-100))
+    RFM = [(a+b+c + ' => ' + str(int(a+b+c)-100),
+            (int(a+b+c)*1000) + (int(a+b+c)-100))
            for a in '32' for b in '321' for c in '321']
 
     ON_OFF = ((True, 'Правило активно'),
