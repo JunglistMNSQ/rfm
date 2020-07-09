@@ -50,8 +50,8 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         self.assertEqual(type(line), list)
 
     def test_take_n_lines(self):
-        self.parser.take_lines(n=4)
-        self.assertEqual(len(self.parser.raw_data), 4)
+        self.parser.take_lines(n=2)
+        self.assertEqual(len(self.parser.raw_data), 2)
 
     def test_take_all_lines(self):
         self.parser.take_lines()
@@ -65,11 +65,13 @@ class TestHandlerRawData(FixturesMixin, TestCase):
         self.assertEqual(result, False)
 
     def test_get_or_create_person(self):
-        name_list = ['Наталья', 'Евгения', 'Анжела', 'Елена']
+        name_list = ['Евгения', 'Анжела  Олеговна', 'Елена', 'Test']
         self.parser.owner = self.user
         self.parser.tab = self.tab_exist
         self.parser.parse()
-        person_list = Person.objects.filter(tab=self.tab_exist)
+        person_list = Person.objects.filter(
+            tab=self.tab_exist
+        )
         self.assertTrue(person_list)
         self.assertEqual(self.parser.not_condition_data, [])
         for person in person_list:
@@ -146,14 +148,14 @@ class TestManageTable(FixturesMixin, TestCase):
         super(TestManageTable, self).setUp()
         self.clients = [
             {'name': 'test1',
-             'phone': '+375291516665',
+             'phone': '+375296666665',
              'date': '02.06.2018',
              'good': 'testt',
              'pay': 60,
              'owner': self.user,
              'tab': self.tab_exist},
             {'name': 'test2',
-             'phone': '+375291616665',
+             'phone': '+375291666666',
              'date': '02.06.2016',
              'good': 'ttestt',
              'pay': 40,

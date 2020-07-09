@@ -6,3 +6,5 @@ requests
 django-multiselectfield
 django_extensions
 mock
+django-fixture-magic
+future

@@ -21,7 +21,8 @@ class RocketSMS:
             return (
                 False,
                 None,
-                'Не получается проверить баланс: нет связи с RocketSMS.')
+                'Не получается проверить баланс: нет связи с RocketSMS.'
+            )
         else:
             if balance > sms_quantity:
                 return (

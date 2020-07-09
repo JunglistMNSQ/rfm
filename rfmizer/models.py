@@ -292,8 +292,9 @@ class Person(models.Model):
             self.rfm_move = self.rfm_move[3:] + self.rfm_category
             self.save()
 
-    def rfm_flag_update(self, flag):
-        self.rfm_flag = flag
+    def set_last_sent(self):
+        self.rfm_flag = False
+        self.last_sent = timezone.now()
         self.save()
 
     def __str__(self):
@@ -362,3 +363,18 @@ class Rules(models.Model):
         tab = self.tab
         return reverse('rule', args=[tab.slug,
                                      self.slug])
+
+
+class ActionLog(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    event_time = models.DateTimeField(default=timezone.now)
+    event = models.TextField()
+
+    def __str__(self):
+        return self.event
+
+    @classmethod
+    def get_event(cls, event, owner):
+        cls.objects.create(event=str(event), owner=owner)
+
+    objects = models.Manager()

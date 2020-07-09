@@ -111,9 +111,12 @@ class TestMyTables(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/my_tables/')
         qs = response.context['list_tab']
-        self.assertQuerysetEqual(list(qs),
-                                 [f'<ManageTable: {self.tab_exist}>',
-                                  f'<ManageTable: {self.tab_exist_1}>'])
+        self.assertSetEqual(
+            set(qs),
+            {self.tab_exist,
+             ManageTable.objects.get(pk=2),
+             ManageTable.objects.get(pk=3)}
+        )
         self.assertEqual(response.status_code, 200)
 
 
@@ -199,15 +202,16 @@ class TestNewRule(FixturesMixin, TestCase):
         session.save()
         self.assertEqual(response.status_code, 200)
         response = self.client.post(url,
-                                    {'name': 'test_rule_2',
+                                    {'name': 'test_rule_3',
                                      'on_off_rule': False,
                                      'from_to': ['333233', '233133'],
                                      'message': 'test message'},
                                     follow=True)
-        rule = Rules.objects.get(name='test_rule_2')
+        rule = Rules.objects.get(name='test_rule_3')
+        self.assertEqual(rule.from_to, ['333233', '233133'])
         self.assertEqual(rule.on_off_rule, False)
         self.assertEqual(response.redirect_chain,
-                         [('/my_tables/test/rules/test-rule-2', 302)])
+                         [('/my_tables/test/rules/test-rule-3', 302)])
 
 
 # class TestEditRule(FixturesMixin, TestCase):

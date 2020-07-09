@@ -1,0 +1,265 @@
+[
+    {
+        "fields": {
+            "choice_rec_1": 1,
+            "choice_rec_2": 1,
+            "create_date": "2020-07-09T08:03:08.934Z",
+            "frequency_1": 0,
+            "frequency_2": 0,
+            "monetary_1": 0,
+            "monetary_2": 0,
+            "name": "test",
+            "on_off": true,
+            "owner": 1,
+            "recency_1": null,
+            "recency_2": null,
+            "recency_raw_1": 0,
+            "recency_raw_2": 0,
+            "slug": "test"
+        },
+        "model": "rfmizer.managetable",
+        "pk": 1
+    },
+        {
+        "fields": {
+            "choice_rec_1": 30,
+            "choice_rec_2": 30,
+            "create_date": "2020-07-09T08:03:08.934Z",
+            "frequency_1": 3,
+            "frequency_2": 5,
+            "monetary_1": 100,
+            "monetary_2": 300,
+            "name": "test_test",
+            "on_off": true,
+            "owner": 1,
+            "recency_1": "90 00:00:00",
+            "recency_2": "30 00:00:00",
+            "recency_raw_1": 3,
+            "recency_raw_2": 1,
+            "slug": "test-test"
+        },
+        "model": "rfmizer.managetable",
+        "pk": 2
+    },
+        {
+        "fields": {
+            "choice_rec_1": 30,
+            "choice_rec_2": 30,
+            "create_date": "2020-07-09T08:03:08.934Z",
+            "frequency_1": 3,
+            "frequency_2": 5,
+            "monetary_1": 100,
+            "monetary_2": 300,
+            "name": "test_test_test",
+            "on_off": false,
+            "owner": 1,
+            "recency_1": "90 00:00:00",
+            "recency_2": "30 00:00:00",
+            "recency_raw_1": 3,
+            "recency_raw_2": 1,
+            "slug": "test-test-test"
+        },
+        "model": "rfmizer.managetable",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "date_joined": "2020-07-09T07:59:56.905Z",
+            "email": "test@test.test",
+            "first_name": "",
+            "groups": [],
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "last_login": "2020-07-09T08:00:04.703Z",
+            "last_name": "",
+            "password": "pbkdf2_sha256$180000$UsDg2Z5aOMNW$j/+So4wFXRfCHjnw1SIynlzmdNlwOc703Q9USWqrpVU=",
+            "user_permissions": [],
+            "username": "test"
+        },
+        "model": "auth.user",
+        "pk": 1
+    },
+        {
+        "fields": {
+            "date_joined": "2020-07-09T07:59:56.905Z",
+            "email": "test1@test.test",
+            "first_name": "",
+            "groups": [],
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "last_login": "2020-07-09T08:00:04.703Z",
+            "last_name": "",
+            "password": "pbkdf2_sha256$180000$UsDg2Z5aOMNW$j/+So4wFXRfCHjnw1SIynlzmdNlwOc703Q9USWqrpVU=",
+            "user_permissions": [],
+            "username": "test1"
+        },
+        "model": "auth.user",
+        "pk": 2
+    },
+        {
+        "fields": {
+            "date_joined": "2020-07-09T07:59:56.905Z",
+            "email": "test2@test.test",
+            "first_name": "",
+            "groups": [],
+            "is_active": false,
+            "is_staff": false,
+            "is_superuser": false,
+            "last_login": "2020-07-09T08:00:04.703Z",
+            "last_name": "",
+            "password": "pbkdf2_sha256$180000$UsDg2Z5aOMNW$j/+So4wFXRfCHjnw1SIynlzmdNlwOc703Q9USWqrpVU=",
+            "user_permissions": [],
+            "username": "test2"
+        },
+        "model": "auth.user",
+        "pk": 3
+    },
+        {
+        "fields": {
+            "active_client": true,
+            "deal_count": 1,
+            "last_deal": "2020-06-27",
+            "last_deal_good": null,
+            "last_sent": null,
+            "name": "Test",
+            "owner": 1,
+            "pays": 135,
+            "phone": "+375294444444",
+            "rfm_category": "233",
+            "rfm_flag": true,
+            "rfm_move": "333233",
+            "slug": "test",
+            "tab": 1
+        },
+        "model": "rfmizer.person",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "active_client": true,
+            "deal_count": 1,
+            "last_deal": "2020-06-27",
+            "last_deal_good": null,
+            "last_sent": null,
+            "name": "\u0415\u043b\u0435\u043d\u0430",
+            "owner": 1,
+            "pays": 135,
+            "phone": "+375293333333",
+            "rfm_category": "000",
+            "rfm_flag": true,
+            "rfm_move": "000000",
+            "slug": "elena",
+            "tab": 1
+        },
+        "model": "rfmizer.person",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "active_client": true,
+            "deal_count": 1,
+            "last_deal": "2020-06-27",
+            "last_deal_good": null,
+            "last_sent": null,
+            "name": "\u0410\u043d\u0436\u0435\u043b\u0430 \u00a0\u041e\u043b\u0435\u0433\u043e\u0432\u043d\u0430",
+            "owner": 1,
+            "pays": 160,
+            "phone": "+375292222222",
+            "rfm_category": "000",
+            "rfm_flag": true,
+            "rfm_move": "000000",
+            "slug": "anzhela-olegovna",
+            "tab": 1
+        },
+        "model": "rfmizer.person",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "active_client": true,
+            "deal_count": 1,
+            "last_deal": "2020-06-25",
+            "last_deal_good": null,
+            "last_sent": null,
+            "name": "\u0415\u0432\u0433\u0435\u043d\u0438\u044f",
+            "owner": 1,
+            "pays": 135,
+            "phone": "+375291111111",
+            "rfm_category": "000",
+            "rfm_flag": true,
+            "rfm_move": "000000",
+            "slug": "evgeniia",
+            "tab": 1
+        },
+        "model": "rfmizer.person",
+        "pk": 1
+    },
+        {
+        "fields": {
+            "date": "2020-06-27",
+            "good": "\u0411\u0440\u043e\u0432\u0438",
+            "pay": 135,
+            "person": 4
+        },
+        "model": "rfmizer.deals",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "date": "2020-06-27",
+            "good": "\u0411\u0440\u043e\u0432\u0438",
+            "pay": 135,
+            "person": 3
+        },
+        "model": "rfmizer.deals",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "date": "2020-06-27",
+            "good": "\u0411\u0440\u043e\u0432\u0438",
+            "pay": 160,
+            "person": 2
+        },
+        "model": "rfmizer.deals",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "date": "2020-06-25",
+            "good": "\u0411\u0440\u043e\u0432\u0438",
+            "pay": 135,
+            "person": 1
+        },
+        "model": "rfmizer.deals",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "from_to": "331231,321221",
+            "message": "Test message {name}",
+            "name": "test rule #2",
+            "on_off_rule": true,
+            "owner": 1,
+            "slug": "test-rule-2",
+            "tab": 1
+        },
+        "model": "rfmizer.rules",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "from_to": "333233,332232",
+            "message": "test message",
+            "name": "test_rule",
+            "on_off_rule": true,
+            "owner": 1,
+            "slug": "test-rule",
+            "tab": 1
+        },
+        "model": "rfmizer.rules",
+        "pk": 1
+    }
+]
