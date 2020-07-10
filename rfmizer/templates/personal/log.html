@@ -3,5 +3,42 @@
 {% block h1 %}Журнал отправки СМС{% endblock %}
 
 {% block content %}
-<p>Soon</p>
+{% if object_list %}
+    <table class="alt">
+        <tr>
+            <td width="25%">Время</td>
+            <td>Сообщение</td>
+        </tr>
+        {% for event in object_list %}
+        <tr>
+            <td>{{ event.event_time }}</td>
+            <td>{{ event }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div align="center">
+
+            {% if page_obj.has_previous %}
+                <span>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="button primary small">Назад</a>
+                </span>
+            {% else %}
+                <span class="button primary small disabled">Назад</span>
+            {% endif %}
+
+
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.</span>
+
+
+            {% if page_obj.has_next %}
+                <span>
+                    <a href="?page={{ page_obj.next_page_number }}" class="button primary small">Вперед</a>
+                </span>
+            {% else %}
+                <span class="button primary small disabled">Вперед</span>
+            {% endif %}
+    </div>
+{% else %}
+    <p>У вас пока нет ни одного события</p>
+{% endif %}
 {% endblock %}

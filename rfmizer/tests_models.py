@@ -207,5 +207,3 @@ class TestManageTable(FixturesMixin, TestCase):
         tab.recency_calc()
         self.assertTrue(tab.recency_1,)
         self.assertTrue(tab.recency_2,)
-
-

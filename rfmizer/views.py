@@ -1,11 +1,15 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import *
-from .forms import *
-from django.shortcuts import redirect, render, HttpResponseRedirect
-import hashlib
-from .rocket_sms  import RocketSMS
-from .models import *
 from django.forms.models import modelform_factory
+from django.forms import TextInput, RadioSelect, CheckboxSelectMultiple
+from django.shortcuts import redirect, render, HttpResponseRedirect
+from django.urls import reverse
+from django.views.generic import *
+from .forms import ParserForm, ProfileForm, UserRegistrationForm, \
+    CreateOrUpdateTable
+from .rocket_sms import RocketSMS
+from .models import ActionLog, CsvFileHandler, Deals, HandlerRawData, \
+    Person, Rules, ManageTable, UserFiles, User
+import hashlib
 
 
 # Create your views here.
@@ -43,7 +47,7 @@ class Register(CreateView):
             return HttpResponseRedirect(self.success_url)
 
 
-class Profile(LoginRequiredMixin, GetMyContextMixin, UpdateView):
+class ProfileView(LoginRequiredMixin, GetMyContextMixin, UpdateView):
     template_name = 'personal/profile.html'
     model = User
     form_class = ProfileForm
@@ -53,7 +57,7 @@ class Profile(LoginRequiredMixin, GetMyContextMixin, UpdateView):
         return self.request.user.profile
 
     def get_context_data(self, **kwargs):
-        context = super(Profile, self).get_context_data()
+        context = super(ProfileView, self).get_context_data()
         context['msg'] = self.get_message()
         return context
 
@@ -68,11 +72,6 @@ class Profile(LoginRequiredMixin, GetMyContextMixin, UpdateView):
         self.object.balance = balance[1]
         self.object.save()
         self.request.session['msg'] = balance[2]
-        # В test_views сравнения не получают значения из модели Profile
-        # Здесь принты показывают что все работает.
-        # print(self.object.balance)
-        # print(self.object.sms_pass)
-        # print(self.object.sms_login)
         return HttpResponseRedirect(self.success_url)
 
 
@@ -93,7 +92,6 @@ class Upload(LoginRequiredMixin, CreateView):
         new_file.save()
         self.request.session['file'] = new_file.pk
         if cd['name']:
-            print(cd['name'])
             tab = form.save(commit=False)
             tab.owner = owner
             tab.save()
@@ -144,7 +142,7 @@ class Parse(LoginRequiredMixin, FormView):
             self.request.session['data'] = corrupt_data
             return redirect('/corrupt_data/')
         return super(Parse, self).form_valid(form)
-    
+
     def get_success_url(self):
         tab = ManageTable.objects.get(pk=self.request.session['tab'])
         return reverse('manage_tab', kwargs={'slug': tab.slug})
@@ -200,19 +198,19 @@ class ManageTab(LoginRequiredMixin, GetMyContextMixin, UpdateView):
     def get_form_class(self):
         return modelform_factory(self.model,
                                  fields=self.fields,
-                                 widgets=self.widgets,)
-    
+                                 widgets=self.widgets, )
+
     def form_valid(self, form):
-        self.object = form.save()
-        self.object.recency_calc()
-        self.request.session['msg'] = self.object.rfmizer()
+        tab = form.save()
+        tab.recency_calc()
+        self.request.session['msg'] = tab.rfmizer()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
         context = super(ManageTab, self).get_context_data()
         context['msg'] = self.get_message()
         return context
-        
+
 
 class ClientList(LoginRequiredMixin, GetMyContextMixin, ListView):
     template_name = 'personal/client_list.html'
@@ -227,7 +225,10 @@ class ClientList(LoginRequiredMixin, GetMyContextMixin, ListView):
         return context
 
 
-class ClientCard(LoginRequiredMixin, GetMyContextMixin, DetailView, UpdateView):
+class ClientCard(LoginRequiredMixin,
+                 GetMyContextMixin,
+                 DetailView,
+                 UpdateView):
     model = Person
     template_name = 'personal/client_card.html'
     fields = ['phone', 'active_client']
@@ -248,7 +249,7 @@ class RulesList(LoginRequiredMixin, GetMyContextMixin, ListView):
 
     def get_queryset(self):
         qs = super(RulesList, self).get_queryset()
-        return qs.filter(owner=self.request.user)
+        return qs.filter(owner=self.request.user, tab=self.get_tab())
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RulesList, self).get_context_data()
@@ -273,7 +274,7 @@ class NewRule(LoginRequiredMixin, GetMyContextMixin, CreateView):
         return modelform_factory(self.model,
                                  fields=self.fields,
                                  widgets=self.widgets)
-    
+
     def form_valid(self, form):
         tab = self.get_tab()
         owner = self.request.user
@@ -309,10 +310,16 @@ class Delete(LoginRequiredMixin, DeleteView):
     template_name = 'personal/del.html'
     model = ManageTable
     success_url = '/my_tables'
-    
+
     def get_object(self, queryset=None):
         return super(Delete, self).get_object()
 
 
-class Log(LoginRequiredMixin, TemplateView):
+class Log(LoginRequiredMixin, ListView):
     template_name = 'personal/log.html'
+    model = ActionLog
+    paginate_by = 20
+
+    def get_queryset(self):
+        qs = super(Log, self).get_queryset()
+        return qs.filter(owner=self.request.user)

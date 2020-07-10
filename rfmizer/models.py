@@ -2,7 +2,6 @@ import csv
 import re
 from datetime import date, timedelta
 from django.contrib.auth.models import User
-# from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -13,6 +12,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.validators \
     import validate_international_phonenumber as phone_validate
 from uuslug import uuslug
+
 
 # Create your models here.
 
@@ -252,8 +252,8 @@ class Person(models.Model):
             return '+' + phone
 
     @classmethod
-    def date_(cls, date):
-        dt = re.findall(r'(\d{2}).(\d{2}).(\d{4})', date)[0]
+    def date_(cls, dt):
+        dt = re.findall(r'(\d{2}).(\d{2}).(\d{4})', dt)[0]
         return f'{dt[2]}-{dt[1]}-{dt[0]}'
 
     def add_deal(self, deal):
@@ -372,11 +372,11 @@ class ActionLog(models.Model):
     event_time = models.DateTimeField(default=timezone.now)
     event = models.TextField()
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.event
 
     @classmethod
     def get_event(cls, event, owner):
         cls.objects.create(event=str(event), owner=owner)
-
-    objects = models.Manager()

@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import ModelForm, TextInput, RadioSelect, \
-    CheckboxSelectMultiple
+from django.forms import ModelForm, TextInput
 from . import models
 from .validators import *
 
@@ -90,47 +89,9 @@ class ParserForm(forms.Form):
     def clean(self):
         super().clean()
         cd = self.cleaned_data
-        if cd['col0'] != cd['col1'] != cd['col2'] != cd['col3'] != cd['col4']:
+        if cd['col0'] != cd['col1'] != \
+                cd['col2'] != cd['col3'] != cd['col4']:
             pass
         else:
             raise ValidationError('Значения в шапке таблице не '
                                   'должны повторяться')
-
-
-
-# class RfmOptions(forms.ModelForm):
-#
-#     class Meta:
-#
-#         model = models.ManageTable
-#         fields = ['choice_rec_1', 'choice_rec_2',
-#                   'recency_raw_1', 'recency_raw_2',
-#                   'frequency_1', 'frequency_2',
-#                   'monetary_1', 'monetary_2',
-#                   'on_off'
-#                   ]
-#         widgets = {
-#             'recency_raw_1': TextInput,
-#             'recency_raw_2': TextInput,
-#             'frequency_1': TextInput,
-#             'frequency_2': TextInput,
-#             'monetary_1': TextInput,
-#             'monetary_2': TextInput,
-#             'on_off': RadioSelect(attrs={'id': 'on_off'}),
-#         }
-
-
-# class ClientManage(forms.ModelForm):
-#
-#     class Meta:
-#         model = models.Person
-#         fields = ['phone', 'active_client']
-
-#
-# class Rule(forms.ModelForm):
-#
-#     class Meta:
-#         model = models.Rules
-#         fields = ['name', 'from_to', 'message', 'on_off_rule']
-#         widgets = {'on_off_rule': RadioSelect(attrs={'id': 'on_off'}),
-#                    'from_to': CheckboxSelectMultiple}

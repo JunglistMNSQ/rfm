@@ -1,7 +1,8 @@
 from django.test import TestCase
-from .action import *
-from .fixtures import FixturesMixin
 from unittest import mock
+from .action import ActionRFMizer, ActionRocketSMS
+from .fixtures import FixturesMixin
+from .models import ActionLog, Person, ManageTable
 
 
 class TestActionsRFMizer(FixturesMixin, TestCase):
@@ -60,5 +61,3 @@ class TestActionRocketSMS(FixturesMixin, TestCase):
             str(ActionLog.objects.all()[0]),
             'Не достаточно кредитов для отправки смс - 0'
         )
-
-

@@ -1,7 +1,9 @@
 from django.test import TestCase
-from .fixtures import FixturesMixin
-from .views import *
+from django.urls import reverse
 from unittest import mock
+from .fixtures import FixturesMixin
+from .models import Person, Rules, ManageTable, User
+import hashlib
 
 
 # Create your tests here.
@@ -9,11 +11,11 @@ from unittest import mock
 
 class TestRegister(FixturesMixin, TestCase):
     def test_create_and_login(self):
-        response = self.client.post('/register/',
-                                    {'username': 'TestUser1',
-                                     'email': 'test@test.com',
-                                     'password': 'password',
-                                     'password2': 'password'})
+        self.client.post('/register/',
+                         {'username': 'TestUser1',
+                          'email': 'test@test.com',
+                          'password': 'password',
+                          'password2': 'password'})
         session = self.client.session
         session.save()
         user = User.objects.get_by_natural_key('TestUser1')
@@ -22,7 +24,7 @@ class TestRegister(FixturesMixin, TestCase):
                                     {'username': 'TestUser1',
                                      'password': 'password'},
                                     follow=True)
-        self.assertEqual(response.redirect_chain, [('/log/', 302)])
+        self.assertEqual(response.redirect_chain, [('/profile/', 302)])
 
     def test_create_with_different_passwords(self):
         response = self.client.post('/register/',
@@ -37,9 +39,9 @@ class TestLogin(FixturesMixin, TestCase):
     def test_login(self):
         response = self.client.post('/login/',
                                     {'username': 'TestUser',
-                                     'password': 'password',},
+                                     'password': 'password'},
                                     follow=True)
-        self.assertEqual(response.redirect_chain, [('/log/', 302)])
+        self.assertEqual(response.redirect_chain, [('/profile/', 302)])
 
 
 class TestUploadToParse(FixturesMixin, TestCase):
@@ -103,7 +105,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
             tab = ManageTable.objects.get(pk=session['tab'])
             self.assertEqual(
                 response.redirect_chain,
-                [('/my_tables/' + self.tab_exist.slug, 302)]
+                [('/my_tables/' + tab.slug, 302)]
             )
 
 
@@ -131,24 +133,6 @@ class TestManageTab(FixturesMixin, TestCase):
         session.save()
         self.assertEqual(response.status_code, 200)
 
-
-    # def test_post(self):
-    #     response = self.client.get(self.url)
-    #     form = response.context['form']
-    #     data = form.initial
-    #     data.update(self.rfm)
-    #     response = self.client.post(self.url,
-    #                                 {'choice_rec_1': 1,
-    #                                  'choice_rec_2': 1,
-    #                                  'recency_raw_1': 5,
-    #                                  'recency_raw_2': 10,
-    #                                  'frequency_1': 5,
-    #                                  'frequency_2': 3,
-    #                                  'monetary_1': 200,
-    #                                  'monetary_2': 100},
-    #                                 follow=True)
-    #     self.assertEqual(self.tab_exist.monetary_1, self.rfm['monetary_1'])
-    #     self.assertEqual(self.tab_exist.frequency_1, self.rfm['frequency_1'])
 
 class TestDeleteTab(FixturesMixin, TestCase):
     def test_post(self):
@@ -214,26 +198,6 @@ class TestNewRule(FixturesMixin, TestCase):
                          [('/my_tables/test/rules/test-rule-3', 302)])
 
 
-# class TestEditRule(FixturesMixin, TestCase):
-#     def test_edit_rule(self):
-#         url = reverse('rule', kwargs={'slug_tab': self.tab_exist.slug,
-#                                       'slug': self.rule.slug})
-#         response = self.client.get(url)
-#         session = self.client.session
-#         session.save()
-#         self.assertEqual(response.status_code, 200)
-#         response = self.client.post(url,
-#                                     {
-#                                      'name': 'test_rename',
-#                                      'from_to': ['222122', '212112'],
-#                                      'message': 'edited message'})
-#         print(self.rule)
-#         # self.assertEqual(self.rule.on_off_rule, False)
-#         self.assertEqual(self.rule.name, 'test_rename')
-#         self.assertEqual(self.rule.from_to, ['222122', '212112'])
-#
-#         self.assertEqual(self.rule.message, 'edited message')
-
 class TestProfile(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/profile/')
@@ -249,11 +213,9 @@ class TestProfile(FixturesMixin, TestCase):
                                      'sms_pass': password},
                                     follow=True)
         hash_pass = hashlib.md5(password.encode('utf-8')).hexdigest()
-        # Так и не смог разобраться, почему self.user.profile не
-        # содержит значений после POST, хотя принты из вьюхи
-        # говорят что все гуд
-        # self.assertEqual(self.user.profile.sms_login, login)
-        # self.assertEqual(self.user.profile.sms_pass, hash_pass)
-        # self.assertEqual(self.user.profile.balance, 25)
+        user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(user.profile.sms_login, login)
+        self.assertEqual(user.profile.sms_pass, hash_pass)
+        self.assertEqual(user.profile.balance, 25)
         self.assertEqual(response.status_code, 200)
         balance_mock.assert_called_once()

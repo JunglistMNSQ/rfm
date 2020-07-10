@@ -11,9 +11,10 @@ class GetItems:
     sender = None
 
     @classmethod
-    def select_from_db(cls, id):
+    def select_from_db(cls, _id):
         with connection.cursor() as c:
-            c.execute(f'SELECT from_to FROM rfmizer_rules WHERE id = {id}')
+            c.execute(f'SELECT from_to FROM rfmizer_rules '
+                      f'WHERE id = {_id}')
             return c.fetchone()[0].split(',')
 
     @classmethod
@@ -48,6 +49,10 @@ class ActionRFMizer(GetItems):
             tab.rfmizer()
         return True
 
+
+class ActionRocketSMS(ActionRFMizer):
+    sender = RocketSMS
+
     @classmethod
     def run_rules(cls):
         rules_list = cls.get_rules()
@@ -78,6 +83,3 @@ class ActionRFMizer(GetItems):
             except BalanceExeption:
                 break
 
-
-class ActionRocketSMS(ActionRFMizer):
-    sender = RocketSMS
