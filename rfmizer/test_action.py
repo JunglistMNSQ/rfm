@@ -41,9 +41,24 @@ class TestActionsRFMizer(FixturesMixin, TestCase):
 
 class TestActionRocketSMS(FixturesMixin, TestCase):
     @mock.patch('rfmizer.action.ActionRocketSMS.sender.check_balance',
+                return_value=(True, 25, None))
+    @mock.patch('rfmizer.action.ActionRocketSMS.sender.send_sms',
                 return_value='SMS Принято, статус: SENT')
-    def test_run_rules(self, balance_check):
-
+    def test_run_rules(self, balance_check, send_sms):
         ActionRocketSMS.run_rules()
         balance_check.assert_called_once()
+        send_sms.assert_called_once()
+        self.assertTrue(ActionLog.objects.all())
+
+    @mock.patch('rfmizer.action.ActionRocketSMS.sender.check_balance',
+                return_value=(False, 0, 'Не достаточно кредитов '
+                                        'для отправки смс - 0'))
+    def test_run_rules_with_zero_balance(self, balance_check):
+        ActionRocketSMS.run_rules()
+        balance_check.assert_called_once()
+        self.assertEqual(
+            str(ActionLog.objects.all()[0]),
+            'Не достаточно кредитов для отправки смс - 0'
+        )
+
 

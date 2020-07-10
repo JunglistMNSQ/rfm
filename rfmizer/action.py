@@ -1,5 +1,6 @@
 from .models import *
 from .rocket_sms import *
+from django.db import connection
 
 
 class BalanceExeption(Exception):
@@ -8,6 +9,12 @@ class BalanceExeption(Exception):
 
 class GetItems:
     sender = None
+
+    @classmethod
+    def select_from_db(cls, id):
+        with connection.cursor() as c:
+            c.execute(f'SELECT from_to FROM rfmizer_rules WHERE id = {id}')
+            return c.fetchone()[0].split(',')
 
     @classmethod
     def get_active_users(cls):
@@ -49,8 +56,8 @@ class ActionRFMizer(GetItems):
             login, pass_hash = (
                 owner.profile.sms_login, owner.profile.sms_pass
             )
-            clients = cls.get_clients(owner, rule.tab, rule.get_from_to_list())
-            print(clients, rule.get_from_to_list(), rule.from_to)
+            moves = cls.select_from_db(rule.id)
+            clients = cls.get_clients(owner, rule.tab, moves)
             try:
                 for client in clients:
                     message = re.sub(r'\{name\}', client.name, message)

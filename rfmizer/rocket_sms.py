@@ -10,7 +10,7 @@ class RocketSMS:
     def check_balance(cls, login, pass_hash, message=None):
         sms_quantity = 0
         if message:
-            sms_quantity = abs(len(message)) // 67
+            sms_quantity = abs(-len(message) // 67)
         try:
             request = requests.get(cls.balance_url,
                                    {'username': login,

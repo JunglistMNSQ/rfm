@@ -201,10 +201,10 @@ class TestNewRule(FixturesMixin, TestCase):
         session = self.client.session
         session.save()
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(url,
+        response = self.client.post(self.url,
                                     {'name': 'test_rule_3',
                                      'on_off_rule': False,
-                                     'from_to': ['333233', '233133'],
+                                     'from_to': [333233, 233133],
                                      'message': 'test message'},
                                     follow=True)
         rule = Rules.objects.get(name='test_rule_3')
@@ -257,4 +257,3 @@ class TestProfile(FixturesMixin, TestCase):
         # self.assertEqual(self.user.profile.balance, 25)
         self.assertEqual(response.status_code, 200)
         balance_mock.assert_called_once()
-

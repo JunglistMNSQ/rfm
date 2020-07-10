@@ -38,18 +38,11 @@ class FixturesMixin(TestCase):
                     'on_off': True}
         self.order = ['date', 'name', 'phone', 'good', 'pay']
         self.f = CsvFileHandler(self.file)
-        self.p = HandlerRawData(self.f)
-        self.p.order = self.order
-        self.p.owner = self.user
-        self.p.tab = ManageTable.objects.get(pk=2)
-        self.p.parse()
+        self.handler = HandlerRawData(self.f)
+        self.handler.order = self.order
+        self.handler.owner = self.user
+        self.handler.tab = ManageTable.objects.get(pk=2)
+        self.handler.parse()
         self.url = reverse(
             'new_rule', kwargs={'slug': self.tab_exist.slug}
         )
-        self.client.post(self.url,
-                         {'name': 'test_rule_4',
-                          'on_off_rule': False,
-                          'from_to': ['333233', '233133'],
-                          'message': 'test message'})
-
-
