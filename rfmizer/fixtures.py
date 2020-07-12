@@ -10,8 +10,8 @@ class FixturesMixin(TestCase):
     def setUp(self):
         super(FixturesMixin, self).setUp()
         self.client = Client()
-        self.file = '/Users/vladimir/Documents/testdbsheet.csv'
-        self.file_corrupt = '/Users/vladimir/Documents/' \
+        self.file = '/Users/vladimirnacevskij/Documents/testdbsheet.csv'
+        self.file_corrupt = '/Users/vladimirnacevskij/Documents/' \
                             'corrupt_data_testsheet.csv'
         self.user = User.objects.get(pk=1)
         self.tab_exist = ManageTable.objects.get(pk=1)

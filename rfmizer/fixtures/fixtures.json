@@ -252,7 +252,7 @@
     {
         "fields": {
             "from_to": [333233],
-            "message": "test message",
+            "message": "test message {name}",
             "name": "test_rule",
             "on_off_rule": true,
             "owner": 1,

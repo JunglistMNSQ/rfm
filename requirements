@@ -1,4 +1,4 @@
-psycopg2
+django
 django-uuslug
 django-phonenumber-field[phonenumbers]
 django-crontab
@@ -8,3 +8,4 @@ django_extensions
 mock
 django-fixture-magic
 future
+psycopg2-binary

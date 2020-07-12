@@ -65,14 +65,14 @@ class ActionRocketSMS(ActionRFMizer):
             clients = cls.get_clients(owner, rule.tab, moves)
             try:
                 for client in clients:
-                    message = re.sub(r'\{name\}', client.name, message)
+                    msg = re.sub(r'{name}', client.name, message)
                     phone = client.phone.as_e164
                     balance = cls.sender.check_balance(
-                        login, pass_hash, phone, message
+                        login, pass_hash, msg
                     )
                     if balance[0]:
                         res = cls.sender.send_sms(
-                            login, pass_hash, phone, message
+                            login, pass_hash, phone, msg
                         )
                         event = f'{res}. Баланс {balance[1]}'
                         ActionLog.get_event(event, owner)
@@ -82,4 +82,3 @@ class ActionRocketSMS(ActionRFMizer):
                         raise BalanceExeption
             except BalanceExeption:
                 break
-

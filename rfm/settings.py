@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'rfm.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'django_rfm',
         'USER': 'django_rfm',
         'PASSWORD': 'django_rfm',
@@ -129,4 +129,3 @@ LOGIN_REDIRECT_URL = '/profile/'
 
 MEDIA_URL = '/user_files/'
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'user_files')
-

@@ -7,7 +7,8 @@ def validate_file_extension(value):
     valid_extensions = ['.csv']
     if not ext.lower() in valid_extensions:
         raise ValidationError(
-            f'Не поддерживаемый тип файла. Пожалуйста загрузите CSV файл.')
+            f'Не поддерживаемый тип файла. '
+            f'Пожалуйста загрузите CSV файл.')
 
 
 def validate_input_options(value):
