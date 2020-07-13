@@ -1,14 +1,15 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import modelform_factory
 from django.forms import TextInput, RadioSelect, CheckboxSelectMultiple
-from django.shortcuts import redirect, render, HttpResponseRedirect
+from django.shortcuts import redirect, HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import *
+from django.views.generic import CreateView, DetailView, DeleteView, \
+    FormView, ListView, UpdateView
 from .forms import ParserForm, ProfileForm, UserRegistrationForm, \
     CreateOrUpdateTable
 from .rocket_sms import RocketSMS
-from .models import ActionLog, CsvFileHandler, Deals, HandlerRawData, \
-    Person, Rules, ManageTable, UserFiles, User
+from .models import ActionLog, CsvFileHandler, HandlerRawData, \
+    Person, Rules, Tab, UserFiles, User
 import hashlib
 
 
@@ -18,7 +19,7 @@ import hashlib
 class GetMyContextMixin:
     def get_tab(self):
         slug = self.kwargs.get('slug_tab') or self.kwargs.get('slug')
-        return ManageTable.objects.get(slug=slug)
+        return Tab.objects.get(slug=slug)
 
     def get_message(self):
         try:
@@ -27,10 +28,10 @@ class GetMyContextMixin:
             return None
         return msg
 
-
-def main(request):
-    return render(request,
-                  'index.html')
+    def file_read_n_parse(self):
+        file = UserFiles.object.get(pk=self.request.session['file'])
+        reader = CsvFileHandler(file.file.path)
+        return HandlerRawData(reader)
 
 
 class Register(CreateView):
@@ -105,23 +106,18 @@ class Upload(LoginRequiredMixin, CreateView):
             return redirect('/parse/')
 
 
-class Parse(LoginRequiredMixin, FormView):
+class Parse(GetMyContextMixin, LoginRequiredMixin, FormView):
     template_name = 'personal/parse.html'
     form_class = ParserForm
 
     def get_context_data(self, **kwargs):
         context = super(Parse, self).get_context_data()
-        file = UserFiles.object.get(pk=self.request.session['file'])
-        reader = CsvFileHandler(file.file.path)
-        parser = HandlerRawData(reader)
+        parser = self.file_read_n_parse()
         context['lines'] = parser.take_lines(3)
         return context
 
     def form_valid(self, form):
-        # tab_is_new = self.request.session['tab_is_new']
-        file = UserFiles.object.get(pk=self.request.session['file'])
-        reader = CsvFileHandler(file.file.path)
-        parser = HandlerRawData(reader)
+        parser = self.file_read_n_parse()
         cd = form.cleaned_data
         col = 0
         order = []
@@ -134,17 +130,19 @@ class Parse(LoginRequiredMixin, FormView):
             finally:
                 parser.order = order
         parser.owner = self.request.user
-        tab = ManageTable.objects.get(pk=self.request.session['tab'])
+        tab = Tab.objects.get(pk=self.request.session['tab'])
         parser.tab = tab
         corrupt_data = parser.parse()
-        file.delete()
+        self.request.user.files.get(
+            pk=self.request.session.pop('file')
+        ).delete()
         if corrupt_data:
             self.request.session['data'] = corrupt_data
             return redirect('/corrupt_data/')
         return super(Parse, self).form_valid(form)
 
     def get_success_url(self):
-        tab = ManageTable.objects.get(pk=self.request.session['tab'])
+        tab = Tab.objects.get(pk=self.request.session['tab'])
         return reverse('manage_tab', kwargs={'slug': tab.slug})
 
 
@@ -158,25 +156,21 @@ class CorruptData(LoginRequiredMixin, GetMyContextMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(CorruptData, self).get_context_data()
-        tab = ManageTable.objects.get(pk=self.request.session['tab'])
+        tab = Tab.objects.get(pk=self.request.session['tab'])
         context['tab'] = tab
         return context
 
 
 class MyTables(LoginRequiredMixin, ListView):
     template_name = 'personal/my_tables.html'
-    model = ManageTable
+    context_object_name = 'list_tab'
 
-    def get_context_data(self, **kwargs):
-        context = super(MyTables, self).get_context_data()
-        context['list_tab'] = ManageTable.objects.filter(
-            owner=self.request.user
-        )
-        return context
+    def get_queryset(self):
+        return self.request.user.tabs.all()
 
 
 class ManageTab(LoginRequiredMixin, GetMyContextMixin, UpdateView):
-    model = ManageTable
+    model = Tab
     template_name = 'personal/manage.html'
     fields = [
         'choice_rec_1', 'choice_rec_2',
@@ -221,7 +215,7 @@ class ClientList(LoginRequiredMixin, GetMyContextMixin, ListView):
         context = super(ClientList, self).get_context_data()
         tab = self.get_tab()
         context['tab'] = tab
-        context['obj_list'] = Person.objects.filter(tab=tab)
+        context['clients'] = tab.clients.all()
         return context
 
 
@@ -234,12 +228,11 @@ class ClientCard(LoginRequiredMixin,
     fields = ['phone', 'active_client']
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        # tab = ManageTable.objects.get(slug=self.kwargs['slug_tab'])
         client = Person.objects.get(slug=self.kwargs['slug'])
         context = super(ClientCard, self).get_context_data()
         context['tab'] = self.get_tab()
-        context['object'] = client
-        context['obj_list'] = Deals.objects.filter(person=client)
+        context['client'] = client
+        context['deals'] = client.deals.all()
         return context
 
 
@@ -248,8 +241,7 @@ class RulesList(LoginRequiredMixin, GetMyContextMixin, ListView):
     template_name = 'personal/rules.html'
 
     def get_queryset(self):
-        qs = super(RulesList, self).get_queryset()
-        return qs.filter(owner=self.request.user, tab=self.get_tab())
+        return self.get_tab().rules.all()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RulesList, self).get_context_data()
@@ -270,7 +262,6 @@ class NewRule(LoginRequiredMixin, GetMyContextMixin, CreateView):
         return context
 
     def get_form_class(self):
-        # super(NewRule, self).get_form_class()
         return modelform_factory(self.model,
                                  fields=self.fields,
                                  widgets=self.widgets)
@@ -293,14 +284,13 @@ class EditRule(LoginRequiredMixin, UpdateView):
                'from_to': CheckboxSelectMultiple}
 
     def get_form_class(self):
-        # super(EditRule, self).get_form_class()
         return modelform_factory(self.model,
                                  fields=self.fields,
                                  widgets=self.widgets)
 
     def get_context_data(self, **kwargs):
         context = super(EditRule, self).get_context_data()
-        context['tab'] = ManageTable.objects.get(
+        context['tab'] = Tab.objects.get(
             slug=self.kwargs['slug_tab']
         )
         return context
@@ -308,7 +298,7 @@ class EditRule(LoginRequiredMixin, UpdateView):
 
 class Delete(LoginRequiredMixin, DeleteView):
     template_name = 'personal/del.html'
-    model = ManageTable
+    model = Tab
     success_url = '/my_tables'
 
     def get_object(self, queryset=None):
@@ -321,5 +311,4 @@ class Log(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        qs = super(Log, self).get_queryset()
-        return qs.filter(owner=self.request.user)
+        return self.request.user.events.all()

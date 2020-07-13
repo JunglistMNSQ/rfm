@@ -1,6 +1,6 @@
 {% extends "generic.html" %}
 
-{% block h1 %}Карточка клиента {{ object.name }}{% if msg %}{{ msg }}{% endif %}{% endblock %}
+{% block h1 %}Карточка клиента {{ client.name }}{% if msg %}{{ msg }}{% endif %}{% endblock %}
 
 {% block content %}
     <form method="post">
@@ -17,12 +17,12 @@
                 <td></td>
             </tr>
             <tr>
-                <td>{{ object.name }}</td>
+                <td>{{ client.name }}</td>
                 <td width="16%">{{ form.phone }}</td>
-                <td>{{ object.last_deal }}</td>
-                <td>{{ object.pays }}</td>
-                <td>{{ object.rfm_category }}</td>
-                <td>{{ object.last_sent }}</td>
+                <td>{{ client.last_deal }}</td>
+                <td>{{ client.pays }}</td>
+                <td>{{ client.rfm_category }}</td>
+                <td>{{ client.last_sent }}</td>
                 <td width="12%">{{ form.active_client }}</td>
                 <td width="8%"><input type="submit" value="Сохранить" class="button primary fit"></td>
             </tr>
@@ -41,7 +41,7 @@
             <td>Товар / Услуга</td>
             <td>Оплата</td>
         </tr>
-    {% for deal in obj_list %}
+    {% for deal in deals %}
         <tr>
             <td>{{ forloop.counter }}</td>
             <td>{{ deal.date }}</td>
@@ -51,8 +51,8 @@
     {% endfor %}
         <tr>
             <td colspan="2" align="right">Итого:</td>
-            <td>Количество сделок: {{ object.deal_count }}</td>
-            <td>Сумма оплат: {{ object.pays }}</td>
+            <td>Количество сделок: {{ client.deal_count }}</td>
+            <td>Сумма оплат: {{ client.pays }}</td>
         </tr>
     </table>
 {% endblock %}

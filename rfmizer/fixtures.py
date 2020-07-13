@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.urls import reverse
-from .models import CsvFileHandler, HandlerRawData, ManageTable
+from .models import CsvFileHandler, HandlerRawData, Tab
 
 
 class FixturesMixin(TestCase):
@@ -14,7 +14,7 @@ class FixturesMixin(TestCase):
         self.file_corrupt = '/Users/vladimirnacevskij/Documents/' \
                             'corrupt_data_testsheet.csv'
         self.user = User.objects.get(pk=1)
-        self.tab_exist = ManageTable.objects.get(pk=1)
+        self.tab_exist = Tab.objects.get(pk=1)
         self.client.force_login(self.user)
         self.data = {'name': 'test',
                      'phone': '+375291212121',
@@ -42,7 +42,7 @@ class FixturesMixin(TestCase):
         self.handler = HandlerRawData(self.f)
         self.handler.order = self.order
         self.handler.owner = self.user
-        self.handler.tab = ManageTable.objects.get(pk=2)
+        self.handler.tab = Tab.objects.get(pk=2)
         self.handler.parse()
         self.url = reverse(
             'new_rule', kwargs={'slug': self.tab_exist.slug}

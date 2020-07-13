@@ -129,3 +129,6 @@ LOGIN_REDIRECT_URL = '/profile/'
 
 MEDIA_URL = '/user_files/'
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'user_files')
+
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+BROKER_TRANSPORT = 'redis'

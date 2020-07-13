@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest import mock
 from .fixtures import FixturesMixin
-from .models import Person, Rules, ManageTable, User
+from .models import Person, Rules, Tab, User
 import hashlib
 
 
@@ -48,7 +48,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/upload/', )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(ManageTable.objects.filter(owner=self.user)[0],
+        self.assertEqual(Tab.objects.filter(owner=self.user)[0],
                          self.tab_exist)
 
     def test_create_and_parse_corrupt_file(self):
@@ -61,7 +61,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
             )
             session = self.client.session
             session.save()
-            tab = ManageTable.objects.get(pk=session['tab'])
+            tab = Tab.objects.get(pk=session['tab'])
             self.assertTrue(response.context['lines'])
             self.assertEqual(tab.name, 'test1')
             self.assertTrue(session['tab_is_new'])
@@ -92,7 +92,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
             )
             session = self.client.session
             session.save()
-            tab = ManageTable.objects.get(pk=session['tab'])
+            tab = Tab.objects.get(pk=session['tab'])
             self.assertTrue(response.context['lines'])
             self.assertEqual(session['tab_is_new'], False)
             self.assertEqual(tab.name, self.tab_exist.name)
@@ -102,7 +102,7 @@ class TestUploadToParse(FixturesMixin, TestCase):
                                         self.column_order,
                                         follow=True
                                         )
-            tab = ManageTable.objects.get(pk=session['tab'])
+            tab = Tab.objects.get(pk=session['tab'])
             self.assertEqual(
                 response.redirect_chain,
                 [('/my_tables/' + tab.slug, 302)]
@@ -116,8 +116,8 @@ class TestMyTables(FixturesMixin, TestCase):
         self.assertSetEqual(
             set(qs),
             {self.tab_exist,
-             ManageTable.objects.get(pk=2),
-             ManageTable.objects.get(pk=3)}
+             Tab.objects.get(pk=2),
+             Tab.objects.get(pk=3)}
         )
         self.assertEqual(response.status_code, 200)
 
@@ -136,7 +136,7 @@ class TestManageTab(FixturesMixin, TestCase):
 
 class TestDeleteTab(FixturesMixin, TestCase):
     def test_post(self):
-        test_tab = ManageTable(owner=self.user, name='test_tab_del')
+        test_tab = Tab(owner=self.user, name='test_tab_del')
         test_tab.save()
         url = reverse('delete', args=(test_tab.slug, ))
         response = self.client.post(url,

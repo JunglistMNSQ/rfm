@@ -3,7 +3,7 @@
 {% block h1 %}Список клиентов из таблицы {{ tab.name }}{% endblock %}
 
 {% block content %}
-{% if obj_list %}
+{% if clients %}
     <table id="sort" class="sort">
         <thead>
         <tr>
@@ -18,7 +18,7 @@
         </tr>
         </thead>
 
-    {% for client in obj_list %}
+    {% for client in clients %}
         <tr>
             <td>{{ client }}</td>
             <td>{{ client.phone }}</td>

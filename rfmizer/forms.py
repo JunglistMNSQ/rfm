@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm, TextInput
 from . import models
-from .validators import *
+from .validators import validate_file_extension
 
 
 class UserRegistrationForm(ModelForm):
@@ -45,7 +46,7 @@ class CreateOrUpdateTable(ModelForm):
 
     class Meta:
 
-        model = models.ManageTable
+        model = models.Tab
         fields = ['name']
         widgets = {'name': TextInput()}
 
@@ -54,7 +55,7 @@ class CreateOrUpdateTable(ModelForm):
         super(CreateOrUpdateTable, self).__init__(*args, **kwargs)
         self.fields[
             'choice_exist_tab'
-        ].queryset = models.ManageTable.objects.filter(owner=owner)
+        ].queryset = models.Tab.objects.filter(owner=owner)
 
     def clean(self):
         super().clean()

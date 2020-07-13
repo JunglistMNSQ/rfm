@@ -2,7 +2,7 @@ from django.test import TestCase
 from unittest import mock
 from .action import ActionRFMizer, ActionRocketSMS
 from .fixtures import FixturesMixin
-from .models import ActionLog, Person, ManageTable
+from .models import ActionLog, Person, Tab
 
 
 class TestActionsRFMizer(FixturesMixin, TestCase):
@@ -16,13 +16,13 @@ class TestActionsRFMizer(FixturesMixin, TestCase):
 
     def test_run_rfmizer(self):
         clients = Person.objects.filter(
-            tab=ManageTable.objects.get(pk=2)
+            tab=Tab.objects.get(pk=2)
         )
         for client in clients:
             self.assertEqual(client.rfm_category, '000')
         ActionRFMizer.run_rfmizer()
         clients = Person.objects.filter(
-            tab=ManageTable.objects.get(pk=2)
+            tab=Tab.objects.get(pk=2)
         )
         for client in clients:
             self.assertNotEqual(client.rfm_category, '000')
@@ -30,14 +30,6 @@ class TestActionsRFMizer(FixturesMixin, TestCase):
     def test_get_rules(self):
         rules = ActionRocketSMS.get_rules()
         self.assertIsNotNone(rules)
-
-    def test_get_clients(self):
-        clients = ActionRocketSMS.get_clients(
-            owner=self.user,
-            tab=self.tab_exist,
-            rfm_move=['333233'],
-        )
-        self.assertIsNotNone(clients[0])
 
 
 class TestActionRocketSMS(FixturesMixin, TestCase):

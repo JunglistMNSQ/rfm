@@ -1,6 +1,7 @@
-from .models import *
-from .rocket_sms import *
 from django.db import connection
+from re import sub
+from .models import ActionLog, Rules, Tab, User
+from .rocket_sms import RocketSMS
 
 
 class BalanceExeption(Exception):
@@ -24,21 +25,12 @@ class GetItems:
     @classmethod
     def get_active_tabs(cls):
         users = cls.get_active_users()
-        return ManageTable.objects.filter(owner__in=users, on_off=True)
+        return Tab.objects.filter(owner__in=users, on_off=True)
 
     @classmethod
     def get_rules(cls):
         tabs = cls.get_active_tabs()
         return Rules.objects.filter(tab__in=tabs, on_off_rule=True)
-
-    @classmethod
-    def get_clients(cls, owner, tab, rfm_move):
-        return Person.objects.filter(
-            owner=owner,
-            tab=tab,
-            rfm_move__in=rfm_move,
-            rfm_flag=True
-        )
 
 
 class ActionRFMizer(GetItems):
@@ -62,10 +54,12 @@ class ActionRocketSMS(ActionRFMizer):
                 owner.profile.sms_login, owner.profile.sms_pass
             )
             moves = cls.select_from_db(rule.id)
-            clients = cls.get_clients(owner, rule.tab, moves)
+            clients = rule.tab.clients.filter(
+                rfm_move__in=moves, rfm_flag=True
+            )
             try:
                 for client in clients:
-                    msg = re.sub(r'{name}', client.name, message)
+                    msg = sub(r'{name}', client.name, message)
                     phone = client.phone.as_e164
                     balance = cls.sender.check_balance(
                         login, pass_hash, msg

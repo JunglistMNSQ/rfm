@@ -1,5 +1,7 @@
 from django.test import TestCase
-from .models import *
+from datetime import date
+from .models import CsvFileHandler, HandlerRawData, Person, \
+    PhoneNumberField, Tab, UserFiles
 from .fixtures import FixturesMixin
 
 # Create your tests here.
@@ -166,17 +168,17 @@ class TestManageTable(FixturesMixin, TestCase):
             Person.get_new_line(client)
 
     def test_save_with_work_slug(self):
-        obj1 = ManageTable(name='Test1', owner=self.user)
-        obj2 = ManageTable(name='Test1', owner=self.user)
-        obj3 = ManageTable(name='Test1', owner=self.user)
+        obj1 = Tab(name='Test1', owner=self.user)
+        obj2 = Tab(name='Test1', owner=self.user)
+        obj3 = Tab(name='Test1', owner=self.user)
         obj1.save()
         obj2.save()
         obj3.save()
         self.assertNotEqual(obj1.slug, obj2.slug)
         self.assertNotEqual(obj3.slug, obj2.slug)
-        obj4 = ManageTable(name='T est1', owner=self.user)
-        obj5 = ManageTable(name='Tes t1', owner=self.user)
-        obj6 = ManageTable(name='Te st *&*^1', owner=self.user)
+        obj4 = Tab(name='T est1', owner=self.user)
+        obj5 = Tab(name='Tes t1', owner=self.user)
+        obj6 = Tab(name='Te st *&*^1', owner=self.user)
         obj4.save()
         obj5.save()
         obj6.save()

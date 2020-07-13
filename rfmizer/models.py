@@ -113,21 +113,23 @@ class UserFiles(models.Model):
     file = models.FileField()
     created_at = models.DateTimeField(auto_now=timezone.now())
     owner = models.ForeignKey(User,
+                              related_name='files',
                               on_delete=models.CASCADE,)
 
     object = models.Manager()
 
 
-class ManageTable(models.Model):
+class Tab(models.Model):
     TAB_WORKS = ((True, 'Таблица активна'),
                  (False, 'Таблица не активна'))
 
-    owner = models.ForeignKey(User,
-                              on_delete=models.CASCADE,)
     name = models.CharField(max_length=100,
                             verbose_name='Создать новую таблицу',
                             help_text='Введите название',
                             blank=True)
+    owner = models.ForeignKey(User,
+                              related_name='tabs',
+                              on_delete=models.CASCADE, )
     create_date = models.DateTimeField(default=timezone.now)
     slug = models.CharField(max_length=100)
     on_off = models.BooleanField(default=True,
@@ -168,7 +170,7 @@ class ManageTable(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = uuslug(self.name, instance=self)
-        super(ManageTable, self).save(*args, **kwargs)
+        super(Tab, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('manage_tab', args=[self.slug])
@@ -205,10 +207,11 @@ class Person(models.Model):
     ACTIVE_CLIENT = ((True, 'Да'),
                      (False, 'Нет'))
 
+    name = models.TextField()
     owner = models.ForeignKey(User,
+                              related_name='clients',
                               on_delete=models.CASCADE,)
     slug = models.CharField(max_length=100)
-    name = models.TextField()
     phone = PhoneNumberField(validators=[phone_validate])
     last_deal = models.DateField(null=True)
     pays = models.IntegerField(null=True)
@@ -217,8 +220,9 @@ class Person(models.Model):
     rfm_category = models.TextField(default='000')
     active_client = models.BooleanField(choices=ACTIVE_CLIENT,
                                         default=True,)
-    tab = models.ForeignKey(ManageTable,
-                            on_delete=models.CASCADE,)
+    tab = models.ForeignKey(Tab,
+                            related_name='clients',
+                            on_delete=models.CASCADE, )
     last_sent = models.DateField(null=True)
     rfm_move = models.TextField(default='000000')
     rfm_flag = models.BooleanField(default=False)
@@ -315,6 +319,7 @@ class Person(models.Model):
 
 class Deals(models.Model):
     person = models.ForeignKey(Person,
+                               related_name='deals',
                                on_delete=models.CASCADE)
     date = models.DateField()
     pay = models.PositiveIntegerField()
@@ -349,8 +354,9 @@ class Rules(models.Model):
                                             'помощью {name}.')
     on_off_rule = models.BooleanField(default=True,
                                       choices=ON_OFF)
-    tab = models.ForeignKey(ManageTable,
-                            on_delete=models.CASCADE,)
+    tab = models.ForeignKey(Tab,
+                            related_name='rules',
+                            on_delete=models.CASCADE, )
 
     objects = models.Manager()
 
@@ -368,7 +374,9 @@ class Rules(models.Model):
 
 
 class ActionLog(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User,
+                              related_name='events',
+                              on_delete=models.CASCADE)
     event_time = models.DateTimeField(default=timezone.now)
     event = models.TextField()
 

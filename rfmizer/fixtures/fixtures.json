@@ -17,7 +17,7 @@
             "recency_raw_2": 0,
             "slug": "test"
         },
-        "model": "rfmizer.managetable",
+        "model": "rfmizer.tab",
         "pk": 1
     },
         {
@@ -38,7 +38,7 @@
             "recency_raw_2": 1,
             "slug": "test-test"
         },
-        "model": "rfmizer.managetable",
+        "model": "rfmizer.tab",
         "pk": 2
     },
         {
@@ -59,7 +59,7 @@
             "recency_raw_2": 1,
             "slug": "test-test-test"
         },
-        "model": "rfmizer.managetable",
+        "model": "rfmizer.tab",
         "pk": 3
     },
     {
