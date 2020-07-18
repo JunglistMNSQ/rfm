@@ -8,11 +8,9 @@ class FixturesMixin(TestCase):
     fixtures = ['fixtures.json']
 
     def setUp(self):
-        super(FixturesMixin, self).setUp()
         self.client = Client()
-        self.file = '/Users/vladimirnacevskij/Documents/testdbsheet.csv'
-        self.file_corrupt = '/Users/vladimirnacevskij/Documents/' \
-                            'corrupt_data_testsheet.csv'
+        self.file = './rfmizer/fixtures/testdbsheet.csv'
+        self.file_bad = './rfmizer/fixtures/corrupt_data_testsheet.csv'
         self.user = User.objects.get(pk=1)
         self.tab_exist = Tab.objects.get(pk=1)
         self.client.force_login(self.user)

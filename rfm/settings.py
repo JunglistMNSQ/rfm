@@ -130,5 +130,11 @@ LOGIN_REDIRECT_URL = '/profile/'
 MEDIA_URL = '/user_files/'
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'user_files')
 
-BROKER_URL = 'redis://127.0.0.1:6379/0'
-BROKER_TRANSPORT = 'redis'
+# REDIS related settings
+R_HOST = 'localhost'
+R_PORT = '6379'
+
+# CELERY related settings
+CELERY_BROKER_URL = 'redis://' + R_HOST + ':' + R_PORT + '/0'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_CELERY_RESULT_BACKEND = 'redis://' + R_HOST + ':' + R_PORT + '/0'

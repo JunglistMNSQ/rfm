@@ -76,3 +76,4 @@ class ActionRocketSMS(ActionRFMizer):
                         raise BalanceExeption
             except BalanceExeption:
                 break
+        return True

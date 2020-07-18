@@ -80,7 +80,7 @@ class TestHandlerRawData(FixturesMixin, TestCase):
             self.assertTrue(str(person) in name_list)
 
     def test_corrupt_data_parse(self):
-        obj = CsvFileHandler(self.file_corrupt)
+        obj = CsvFileHandler(self.file_bad)
         parser = HandlerRawData(obj)
         parser.owner = self.user
         parser.tab = self.tab_exist
