@@ -19,16 +19,31 @@
         {% if form.errors %}{{ form.errors.as_ul }}{% endif %}
         <div class="row gtr-uniform">
 
-            <div class="col-12">{{ form.name.label }} {{ form.name }}</div>
-
              {% for radio in form.on_off_rule %}
                 <div class="col-6 col-12-small" style="bottom: auto">
                 {{ radio.tag }}
                 <label for="on_off_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
                 </div>
+             {% endfor %}
+
+            <div class="col-12">{{ form.name.label }} {{ form.name }}</div>
+
+
+             {% for radio in form.time_to_run %}
+                <div class="col-2 col-12-small" style="bottom: auto">
+                {{ radio.tag }}
+                <label for="time_to_run_{{ forloop.counter0 }}">{{ radio.choice_label }}</label>
+                </div>
+            {% endfor %}
+
+            <div class="col-12">{{ form.days.label }} </div>
+
+            {% for choice in form.days %}
+            <div class="col-2 col-12-small">{{ choice.tag }}<label for="id_days_{{ forloop.counter0 }}">{{ choice.choice_label }}</label></div>
             {% endfor %}
 
             <div class="col-12">{{ form.from_to.label }} </div>
+
             {% for choice in form.from_to %}
             <div class="col-4 col-12-small">{{ choice.tag }}<label for="id_from_to_{{ forloop.counter0 }}">{{ choice.choice_label }}</label></div>
             {% endfor %}

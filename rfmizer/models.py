@@ -338,6 +338,15 @@ class Rules(models.Model):
         for a in '32' for b in '321' for c in '321'
     ]
 
+    DAYS_OF_WEEK = (
+        (1, 'Пнд'), (2, 'Втр'),
+        (3, 'Срд'), (4, 'Чтв'),
+        (5, 'Птц'), (6, 'Сбт'),
+        (7, 'Вск')
+    )
+
+    HOUR_TO_RUN = ((10, 10), (12, 12), (14, 14), (16, 16), (18, 18))
+
     ON_OFF = ((True, 'Правило активно'),
               (False, 'Правило не активно'))
 
@@ -349,6 +358,11 @@ class Rules(models.Model):
                                default=None,
                                verbose_name='При каких переходах будет '
                                             'срабатывать триггер.')
+    days = MultiSelectField(choices=DAYS_OF_WEEK,
+                            null=True)
+    time_to_run = models.PositiveIntegerField(choices=HOUR_TO_RUN,
+                                              default=10,
+                                              null=True)
     message = models.TextField(verbose_name='Текст рассылки. '
                                             'Можно персонализоровать с '
                                             'помощью {name}.')
