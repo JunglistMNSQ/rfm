@@ -7,7 +7,7 @@ from django.views.generic import CreateView, DetailView, DeleteView, \
     FormView, ListView, UpdateView
 from .forms import ParserForm, ProfileForm, UserRegistrationForm, \
     CreateOrUpdateTable
-from .rocket_sms import RocketSMS
+from .sms import RocketSMS
 from .models import ActionLog, CsvFileHandler, HandlerRawData, \
     Person, Rules, Tab, UserFiles, User
 import hashlib

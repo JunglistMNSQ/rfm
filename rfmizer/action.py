@@ -1,7 +1,7 @@
 from django.db import connection
 from re import sub
 from .models import ActionLog, Rules, Tab, User
-from .rocket_sms import RocketSMS
+from .sms import RocketSMS
 
 
 class BalanceExeption(Exception):

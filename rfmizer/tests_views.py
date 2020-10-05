@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest import mock
 from .fixtures import FixturesMixin
-from .models import Person, Rules, Tab, User
+from .models import Person, Tab, User
 import hashlib
 
 
@@ -178,32 +178,12 @@ class TestRulesList(FixturesMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestNewRule(FixturesMixin, TestCase):
-    def test_get_post(self):
-        url = reverse('new_rule', kwargs={'slug': self.tab_exist.slug})
-        response = self.client.get(url)
-        session = self.client.session
-        session.save()
-        self.assertEqual(response.status_code, 200)
-        response = self.client.post(self.url,
-                                    {'name': 'test_rule_3',
-                                     'on_off_rule': False,
-                                     'from_to': [333233, 233133],
-                                     'message': 'test message'},
-                                    follow=True)
-        rule = Rules.objects.get(name='test_rule_3')
-        self.assertEqual(rule.from_to, ['333233', '233133'])
-        self.assertEqual(rule.on_off_rule, False)
-        self.assertEqual(response.redirect_chain,
-                         [('/my_tables/test/rules/test-rule-3', 302)])
-
-
 class TestProfile(FixturesMixin, TestCase):
     def test_get(self):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-    @mock.patch('rfmizer.rocket_sms.RocketSMS.check_balance',
+    @mock.patch('rfmizer.sms.RocketSMS.check_balance',
                 return_value=[True, 25, None])
     def test_post(self, balance_mock):
         password = 'test_sms_pass'
