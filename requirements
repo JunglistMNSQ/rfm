@@ -1,11 +1,12 @@
 django
+django_extensions
+django-crontab
+django-fixture-magic
 django-uuslug
 django-phonenumber-field[phonenumbers]
-django-crontab
-requests
 django-multiselectfield
-django_extensions
-mock
-django-fixture-magic
 future
+six
+requests
+mock
 psycopg2-binary
