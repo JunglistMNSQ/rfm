@@ -1,12 +1,12 @@
-from rfm.celery import celery_app
+from celery import shared_task
 from .action import ActionRFMizer, ActionRocketSMS
 
 
-@celery_app.task
+@shared_task
 def schedule_run_rfmizer():
     return ActionRFMizer.run_rfmizer()
 
 
-@celery_app.task
+@shared_task
 def schedule_run_sms_sending():
     return ActionRocketSMS.run_rules()

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fixture_magic',
     'multiselectfield',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -127,14 +128,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/profile/'
 
-MEDIA_URL = '/user_files/'
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'user_files')
 
-# REDIS related settings
-R_HOST = 'localhost'
-R_PORT = '6379'
-
-# CELERY related settings
-CELERY_BROKER_URL = 'redis://' + R_HOST + ':' + R_PORT + '/0'
-CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
-CELERY_CELERY_RESULT_BACKEND = 'redis://' + R_HOST + ':' + R_PORT + '/0'

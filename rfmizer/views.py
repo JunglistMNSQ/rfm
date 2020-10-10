@@ -252,11 +252,10 @@ class RulesList(LoginRequiredMixin, GetMyContextMixin, ListView):
 class NewRule(LoginRequiredMixin, GetMyContextMixin, CreateView):
     model = Rules
     template_name = 'personal/new_rule.html'
-    fields = ['name', 'from_to', 'message',
-              'on_off_rule', 'time_to_run', 'days']
+    fields = ['name', 'from_to', 'message','on_off_rule']
     widgets = {'on_off_rule': RadioSelect(attrs={'id': 'on_off'}),
-               'time_to_run': RadioSelect(attrs={'id': 'time_to_run'}),
-               'days': CheckboxSelectMultiple,
+               # 'time_to_run': RadioSelect(attrs={'id': 'time_to_run'}),
+               # 'days': CheckboxSelectMultiple,
                'from_to': CheckboxSelectMultiple}
 
     def get_context_data(self, **kwargs):
