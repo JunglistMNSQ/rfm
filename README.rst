@@ -6,21 +6,25 @@ What this?
 
 My first project in python/django.
 
-This app was writen for automate a SMS messaging to customers based on a RFM matrix.
+This app was written for automate a SMS messaging to customers based on a RFM matrix.
 The SMS is sent when a trigger works (a customer move down on a R-axis).
 
 How works it?
 
 Upload your database which contain deals of customers. It must be in a CSV format.
-Columns are in order bellow.
+Columns must be in order bellow.
+
 | Data Deal | Customer Name | Customer Phone | Product | Price |
+
 At an import the app checks customers to phones.
 
-After upload your base, heed to go into settings of created table and you need to set RFM settings. Create rules of messaging on triggers which you need. Personalize your message using {name}.
+After upload your base, heed to go into a settings of a created table and you need to set RFM settings. 
+Next create rules of messaging on triggers which you need. 
+Personalize your message using {name}.
 
 A cron compute a RFM every customer at night, and if a move on the R-axis is done, the customer get a message in the day.
 
-Summary, your have automaton which comeback your customer to you, again, and again, and your bank account full more, and more.
+Summary: your have automaton which comeback your customer to you, again, and again, and your bank account full more, and more.
 
 Attention: All the templates are implemented in russian language.
 
@@ -31,7 +35,7 @@ Quick start
 
 2. Install Redis from there https://redis.io/.
 
-3. Install Django and Start a new project, config a backend use the Postgres credentials like this
+3. Install Django and start a new project, config a backend use the Postgres credentials like this
 ::
 
     DATABASES = {
@@ -50,7 +54,7 @@ Quick start
 
     pip install django-rfmizer
 
-5. Add next apps to your INSTALLED_APPS in settings.py
+5. Add next apps to your INSTALLED_APPS in the settings.py
 ::
 
     INSTALLED_APPS = [
@@ -61,12 +65,12 @@ Quick start
         'django_celery_beat',
         ]
 
-6. Add into settings.py a code is below
+6. Add into the settings.py a code is below
 ::
 
     LOGIN_REDIRECT_URL = '/profile/'
 
-7. Add import into urls.py
+7. Add imports into urls.py
 ::
 
     from django.contrib.auth.views import LoginView
