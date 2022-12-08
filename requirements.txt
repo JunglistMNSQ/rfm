@@ -8,7 +8,7 @@ amqp==5.0.1               # via kombu
 asgiref==3.2.10           # via django
 billiard==3.6.3.0         # via celery
 celery==5.0.0             # via -r requirements.in, django-celery-beat
-certifi==2020.6.20        # via requests
+certifi==2022.12.7        # via requests
 chardet==3.0.4            # via requests
 click-didyoumean==0.0.3   # via celery
 click-repl==0.1.6         # via celery
